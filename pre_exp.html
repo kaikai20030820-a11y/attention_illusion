@@ -236,12 +236,12 @@ function experiment_first(p) {
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
     if(reactiontime<=100&&pre_circle==1){
-     circle(0,illusion_size-circle_dis,circle_size)
-     circle(0,illusion_size+circle_dis,circle_size)
+     p.circle(0,illusion_size-circle_dis,circle_size)
+     p.circle(0,illusion_size+circle_dis,circle_size)
     }
     if(reactiontime<=100&&pre_circle==2){
-     circle(illusion_size-circle_dis,0,circle_size)
-     circle(illusion_size+circle_dis,0,circle_size)
+     p.circle(illusion_size-circle_dis,0,circle_size)
+     p.circle(illusion_size+circle_dis,0,circle_size)
     }
     if(reactiontime>100){
         if(illusion==1){
