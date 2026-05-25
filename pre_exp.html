@@ -67,11 +67,134 @@ var get_par_info = {
   timeline: [par_info],
 };
 
+const blanck = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<p> </p>',
+  choices: [' '],
+  // どのキー入力も受け付けない
+  data: {
+    task: 'blank'
+  },
+  trial_duration: 500,
+};
+
+// 教示
+const instruction_before_practice_n = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
+  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
+  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_plactice_n = {
+  timeline: [get_par_info,instruction_before_practice_n]
+}
+
+function experiment_plactice_n(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let illusion = jsPsych.timelineVariable("illusion", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.illusion = illusion
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 300
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(illusion==1){
+        effect_size=-60
+        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+    }
+    if(illusion==2){
+        effect_size=60
+        for(i=0;i<=line_number;i++){
+            p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
+        }
+    }
+    if(illusion==3){
+        effect_size=-60
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_plactice_n = {
+  type: jsPsychP5,
+  sketch: experiment_plactice_n,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'plactice_n',
+  }
+}
+
+let plactice_factors_n = {
+  illusion:[1,2,3]
+}
+
+let stimulus_plactice_n = jsPsych.randomization.factorial(plactice_factors_n,1)
+
+let trial_experiment_plactice_n = {
+  timeline: [blanck,
+    p5_trial_experiment_plactice_n,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_plactice_n,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
 // 教示
 const instruction_before_practice_covert = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  '教示。<br>'+
   'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
   '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
   '図形の縦の長さが横の長さより短いと感じた場合は「F」キーを押してください<br>'+
@@ -88,17 +211,6 @@ const instruction_before_practice_covert = {
 start_plactice_covert = {
   timeline: [get_par_info,instruction_before_practice_covert]
 }
-
-const blanck = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: '<p> </p>',
-  choices: [' '],
-  // どのキー入力も受け付けない
-  data: {
-    task: 'blank'
-  },
-  trial_duration: 500,
-};
 
 function experiment_plactice_covert(p) {
   // おまじない
@@ -197,6 +309,46 @@ const instruction_after_practice = {
   },
 };
 
+start_experiment = {
+  timeline: [instruction_after_practice]
+}
+
+const instruction_lr = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  '次のブロックでは「○」または「×」が左右に表示されます'+
+  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  '準備ができましたら、本試行を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_experiment_lr = {
+  timeline: [instruction_lr]
+}
+
+const instruction_td = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  '次のブロックでは「○」または「×」が上下に表示されます'+
+  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  '準備ができましたら、本試行を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_experiment_td = {
+  timeline: [instruction_td]
+}
+
 let p5_trial_experiment_plactice_covert = {
   type: jsPsychP5,
   sketch: experiment_plactice_covert,
@@ -224,9 +376,6 @@ let trial_experiment_plactice_covert = {
   //ランダム化するか否か
 };
 
-start_experiment = {
-  timeline: [instruction_after_practice]
-}
 
 function experiment_covert(p) {
   // おまじない
@@ -712,16 +861,19 @@ var inst_closing = {
 };
 
 jsPsych.run([
-  //start_fullscreen,
-  //start_plactice_covert,
-  //trial_experiment_plactice_covert,
-  //start_experiment,
-  //trial_experiment_covert,
-  //start_experiment_lr,
-  //trial_experiment_lr,
-  //start_experiment_td,
-  //trial_experiment_td,
+  start_fullscreen,
+  start_plactice_n,
+  trial_experiment_plactice_n,
+  start_experiment,
   trial_experiment_n,
+  start_plactice_covert,
+  trial_experiment_plactice_covert,
+  start_experiment,
+  trial_experiment_covert,
+  start_experiment_lr,
+  trial_experiment_lr,
+  start_experiment_td,
+  trial_experiment_td,
   save_data,
   inst_closing,
   end_fullscreen])
