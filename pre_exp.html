@@ -302,6 +302,14 @@ let trial_experiment_first = {
   //ランダム化するか否か
 };
 
+const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "Dhm8yFT1M1mW",
+    filename: filename,
+    data_string: ()=>jsPsych.data.get().csv()
+};
+
 
 //実験後のお礼
 var inst_closing = {
@@ -321,6 +329,7 @@ jsPsych.run([
   //trial_experiment_plactice_first,
   //start_experiment,
   trial_experiment_first,
+  save_data,
   inst_closing,
   end_fullscreen])
 
