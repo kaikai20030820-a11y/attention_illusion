@@ -244,15 +244,15 @@ function experiment_first(p) {
             p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
         }
         if(pre_shape_left_down==2){
-            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis-circle_size/2)
-            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis-circle_size/2)
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
         }
         if(pre_shape_right_top==1){
             p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
         }
         if(pre_shape_right_top==2){
-            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
-            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
         }
     }
     if(reactiontime>=200&&pre_circle==2){
@@ -283,7 +283,7 @@ function experiment_first(p) {
         }
         if(illusion==3){
             for(i=0;i<=line_number;i++){
-                p.line(-(illusion_size+effect_size)/2,-illusion_size/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+                p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
             }
         }
     }
