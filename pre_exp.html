@@ -256,7 +256,7 @@ function experiment_first(p) {
         }
     }
     if(reactiontime>=200&&pre_circle==2){
-     if(pre_shape_right_top==1){
+        if(pre_shape_right_top==1){
             p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
         }
         if(pre_shape_right_top==2){
@@ -301,7 +301,7 @@ function experiment_first(p) {
       trial.data.rt = reactiontime;
       trial.end_trial();
     };
-    if (p.key === 'space') {
+    if (p.key === 'b') {
       trial.data.result = 2
       trial.data.rt = reactiontime;
       trial.end_trial();
