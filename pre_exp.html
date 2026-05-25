@@ -236,11 +236,11 @@ function experiment_first(p) {
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
     if(reactiontime<=100&&pre_circle==1){
-     p.ellipse(0,illusion_size-circle_dis,circle_size,circle_size)
+     p.ellipse(0,-illusion_size-circle_dis,circle_size,circle_size)
      p.ellipse(0,illusion_size+circle_dis,circle_size,circle_size)
     }
     if(reactiontime<=100&&pre_circle==2){
-     p.ellipse(illusion_size-circle_dis,0,circle_size,circle_size)
+     p.ellipse(-illusion_size-circle_dis,0,circle_size,circle_size)
      p.ellipse(illusion_size+circle_dis,0,circle_size,circle_size)
     }
     if(reactiontime>100){
@@ -255,7 +255,7 @@ function experiment_first(p) {
         }
         if(illusion==3){
             for(i=0;i<=line_number;i++){
-                p.line(-illusion_size/2,-illusion_size/2+illusion_size*i/line_number,illusion_size/2-effect_size/2,-illusion_size/2+illusion_size*i/line_number+effect_size/2)
+                p.line(-illusion_size/2,-illusion_size/2+illusion_size*i/line_number-effect_size/2,illusion_size/2,-illusion_size/2+illusion_size*i/line_number+effect_size/2)
             }
         }
     }
