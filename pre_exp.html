@@ -68,7 +68,7 @@ var get_par_info = {
 };
 
 // 教示
-const instruction_before_practice_first = {
+const instruction_before_practice_covert = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
   '教示。<br>'+
@@ -211,9 +211,9 @@ let plactice_factors_covert = {
 
 let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors,1)
 
-let trial_experiment_plactice_first = {
+let trial_experiment_plactice_covert = {
   timeline: [blanck,
-    p5_trial_experiment_plactice_first,
+    p5_trial_experiment_plactice_covert,
     blanck],
   //刺激条件を代入
   timeline_variables: stimulus_plactice,
