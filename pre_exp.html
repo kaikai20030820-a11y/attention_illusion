@@ -217,6 +217,8 @@ function experiment_first(p) {
     trial.data.pre_circle = pre_circle
     trial.data.illusion = illusion
     trial.data.effect_size = effect_size
+    trial.data.pre_shape_right_top = pre_shape_right_top
+    trial.data.pre_shape_left_down = pre_shape_left_down
     
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 300
@@ -235,36 +237,36 @@ function experiment_first(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=200&&pre_circle==1){
-        if(pre_shape_right_top==1){
+    if(reactiontime>=200&&pre_circle==1){
+        if(pre_shape_left_down==1){
             p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
         }
-        if(pre_shape_right_top==2){
-            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
-            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+        if(pre_shape_left_down==2){
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
         }
-        if(pre_shape_left_down==1){
+        if(pre_shape_right_top==1){
             p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
         }
         if(pre_shape_right_top==2){
-            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
-            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
         }
     }
-    if(reactiontime<=200&&pre_circle==2){
+    if(reactiontime>=200&&pre_circle==2){
      if(pre_shape_right_top==1){
-            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
         }
         if(pre_shape_right_top==2){
-            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
-            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
         }
         if(pre_shape_left_down==1){
-            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
         }
         if(pre_shape_right_top==2){
-            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2)
-            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
         }
     if(reactiontime>200){
         if(illusion==1){
