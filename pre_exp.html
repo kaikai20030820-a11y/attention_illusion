@@ -180,8 +180,9 @@ let p5_trial_experiment_plactice_first = {
 }
 
 let plactice_factors = {
-  upper_length:[-10,50],
-  pre_circle:[60, 180,]
+  illusion:[1,2,3],
+  pre_circle:[1,2],
+  effect_size:[-60,-40,-20,0,20,40,60]
 }
 
 let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors,1)
@@ -207,13 +208,15 @@ function experiment_first(p) {
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
   let pre_circle = jsPsych.timelineVariable("pre_circle", true);
-  let upper_length = jsPsych.timelineVariable("upper_length", true);
+  let illusion = jsPsych.timelineVariable("illusion", true);
+  let effect_size = jsPsych.timelineVariable("effect_size", true);
 
 
   p.setup = function () {
     //刺激のデータ
     trial.data.pre_circle = pre_circle
-    trial.data.upper_length = upper_length
+    trial.data.illusion = illusion
+    trial.data.effect_size = effect_size
     
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 300
@@ -243,16 +246,16 @@ function experiment_first(p) {
     if(reactiontime>100){
         if(illusion==1){
             p.line(0,-illusion_size/2,0,illusion_size/2)
-            p.line(-illusion_size/2,illusion_size,illusion_size/2,illusion_size)
+            p.line(-illusion_size/2-effect_size/2,illusion_size,illusion_size/2+effect_size/2,illusion_size)
         }
         if(illusion==2){
             for(i=0;i<=line_number;i++){
-                line(-illusion_size/2+illusion_size*i/num,-illusion_size/2,-illusion_size/2+illusion_size*i/num,illusion_size/2)
+                line(-illusion_size/2+illusion_size*i/num-effect_size/2,-illusion_size/2,-illusion_size/2+illusion_size*i/num+effect_size/2,illusion_size/2)
             }
         }
         if(illusion==3){
             for(i=0;i<=line_number;i++){
-                line(-illusion_size/2,-illusion_size/2+illusion_size*i/num,illusion_size/2,-illusion_size/2+illusion_size*i/num)
+                line(-illusion_size/2,-illusion_size/2+illusion_size*i/num,illusion_size/2-effect_size/2,-illusion_size/2+illusion_size*i/num+effect_size/2)
             }
         }
     }
@@ -285,7 +288,8 @@ let p5_trial_experiment_first = {
 
 let factors = {
   illusion:[1,2,3],
-  pre_circle:[1,2]
+  pre_circle:[1,2],
+  effect_size:[-60,-40,-20,0,20,40,60]
 }
 
 let stimulus_list_first = jsPsych.randomization.factorial(factors,15)
