@@ -84,8 +84,8 @@ const instruction_before_practice_first = {
   },
 };
 
-start_plactice_first = {
-  timeline: [get_par_info,instruction_before_practice_first]
+start_plactice_covert = {
+  timeline: [get_par_info,instruction_before_practice_covert]
 }
 
 const blanck = {
@@ -99,60 +99,86 @@ const blanck = {
   trial_duration: 500,
 };
 
-function experiment_plactice_first(p) {
+function experiment_plactice_covert(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let angle = jsPsych.timelineVariable("angle", true);
-  let upper_length = jsPsych.timelineVariable("upper_length", true);
+  let illusion = jsPsych.timelineVariable("illusion", true);
+
 
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.angle = angle
-    trial.data.upper_length = upper_length
+    trial.data.illusion = illusion
     
     p.createCanvas(Canvaswidth,Canvasheight);
-    line_length = 150*1.5
-    line_depart = 100*1.5
-    lang = p.PI
-    upper_line_length = line_length+line_length*(upper_length/100)
-    pangle = (180-angle)/180
-    stp = p.PI*3/2
+    illusion_size = 300
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
     nw0 = p.millis();
     p.noCursor()
   }
 
   p.draw = function() {
-    p.background(220);
-    p.strokeWeight(4)
+    p.background(255);
+    p.strokeWeight(5)
+    p.stroke(0)
     p.noFill()
     p.translate(p.width/2, p.height/2)
-    for (i = 0; i < 3; i++) {
-    if(i==0){
-      long=upper_line_length
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=100&&illusion==1){
+        p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+        p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
     }
-    else{
-      long=line_length
+    if(reactiontime<=100&&illusion==2){
+        p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+        p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+        p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
     }
-    dism = p.tan(p.PI*pangle/2)*long/2+line_depart
-    p.beginShape()
-    p.vertex(line_depart*p.cos(stp+2*p.PI*i/3)-long/2*p.cos(lang+2*p.PI*i/3),line_depart*p.sin(stp+2*p.PI*i/3)-long/2*p.sin(lang+2*p.PI*i/3))
-    p.vertex(dism*p.cos(stp+2*p.PI*i/3),dism*p.sin(stp+2*p.PI*i/3))
-    p.vertex(line_depart*p.cos(stp+2*p.PI*i/3)+long/2*p.cos(lang+2*p.PI*i/3),line_depart*p.sin(stp+2*p.PI*i/3)+long/2*p.sin(lang+2*p.PI*i/3))
-    p.endShape()
+    if(reactiontime<=100&&illusion==3){
+        p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+        p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+        p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    if(reactiontime>100&&reactiontime<300){
+        if(illusion==1){
+            effect_size=60
+            p.line(0,-illusion_size/2,0,illusion_size/2)
+            p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+        }
+        if(illusion==2){
+            effect_size=-60
+            for(i=0;i<=line_number;i++){
+                p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
+            }
+        }
+        if(illusion==3){
+            effect_size=60
+            for(i=0;i<=line_number;i++){
+                p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+            }
+        }
+    }
   }
-    }
+
 
   p.keyTyped = function() {
-    if (p.key === 's') {
+    if (p.key === 'f') {
       trial.data.result = 0
-      trial.data.rt = p.millis() - nw0;
+      trial.data.rt = reactiontime;
       trial.end_trial();
     };
-    if (p.key === 'l') {
+    if (p.key === 'j') {
       trial.data.result = 1
-      trial.data.rt = p.millis() - nw0;
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
       trial.end_trial();
     };
   };
@@ -170,19 +196,17 @@ const instruction_after_practice = {
   },
 };
 
-let p5_trial_experiment_plactice_first = {
+let p5_trial_experiment_plactice_covert = {
   type: jsPsychP5,
-  sketch: experiment_plactice_first,
+  sketch: experiment_plactice_covert,
   // このトライアル用のスケッチ（関数）を指定
   data: {
-    task: 'plactice_first',
+    task: 'plactice_covert',
   }
 }
 
-let plactice_factors = {
-  illusion:[1,2,3],
-  pre_circle:[1,2],
-  effect_size:[-60,-40,-20,0,20,40,60]
+let plactice_factors_covert = {
+  illusion:[1,2,3]
 }
 
 let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors,1)
@@ -203,7 +227,7 @@ start_experiment = {
   timeline: [instruction_after_practice]
 }
 
-function experiment_first(p) {
+function experiment_covert(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
@@ -310,12 +334,12 @@ function experiment_first(p) {
 };
 
 
-let p5_trial_experiment_first = {
+let p5_trial_experiment_covert = {
   type: jsPsychP5,
-  sketch: experiment_first,
+  sketch: experiment_covert,
   // このトライアル用のスケッチ（関数）を指定
   data: {
-    task: 'trial_first',
+    task: 'trial_covert',
   }
 }
 
@@ -327,14 +351,14 @@ let factors = {
   effect_size:[-60,-40,-20,0,20,40,60]
 }
 
-let stimulus_list_first = jsPsych.randomization.factorial(factors,15)
+let stimulus_list_covert = jsPsych.randomization.factorial(factors,1)
 
-let trial_experiment_first = {
+let trial_experiment_covert = {
   timeline: [blanck,
-    p5_trial_experiment_first,
+    p5_trial_experiment_covert,
     blanck],
   //刺激条件を代入
-  timeline_variables: stimulus_list_first,
+  timeline_variables: stimulus_list_covert,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
@@ -364,10 +388,10 @@ var inst_closing = {
 
 jsPsych.run([
   //start_fullscreen,
-  //start_plactice_first,
-  //trial_experiment_plactice_first,
+  start_plactice_covert,
+  trial_experiment_plactice_covert,
   start_experiment,
-  trial_experiment_first,
+  trial_experiment_covert,
   save_data,
   inst_closing,
   end_fullscreen])
