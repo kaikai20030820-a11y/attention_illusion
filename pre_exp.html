@@ -278,12 +278,12 @@ function experiment_first(p) {
         }
         if(illusion==2){
             for(i=0;i<=line_number;i++){
-                p.line(-illusion_size/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-illusion_size/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
+                p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
             }
         }
         if(illusion==3){
             for(i=0;i<=line_number;i++){
-                p.line(-illusion_size/2,-illusion_size/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-illusion_size/2+(illusion_size+effect_size)*i/line_number)
+                p.line(-(illusion_size+effect_size)/2,-illusion_size/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
             }
         }
     }
