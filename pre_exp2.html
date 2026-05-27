@@ -913,6 +913,11 @@ let factors_covert_Helmholtz = {
   pre_circle:[1,2]
 }
 
+let factors_covert_vertical_horizontal = {
+  shape:combineAndShuffle(shape1,[[0,3],[0,4]]),
+  pre_circle:[1,2]
+}
+
 let factors_overt = {
   illusion:[1,2,3],
   pre_shape_right_top:[1,2],
@@ -926,6 +931,7 @@ let factors_n = {
 }
 
 let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz,1)
+let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal,1)
 let stimulus_list_overt = jsPsych.randomization.factorial(factors_overt,1)
 let stimulus_list_n = jsPsych.randomization.factorial(factors_n,2)
 
@@ -935,6 +941,18 @@ let trial_experiment_covert_Helmholtz = {
     blanck],
   //刺激条件を代入
   timeline_variables: stimulus_list_covert_Helmholtz,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_covert_vertical_horizontal = {
+  timeline: [blanck,
+    p5_trial_experiment_covert_vertical_horizontal,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_covert_vertical_horizontal,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
