@@ -441,12 +441,12 @@ function experiment_covert_Helmholtz(p) {
             p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
             p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
         }
-        if(shape[1]==1){
+        if(shape[1]==3){
             p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
             p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
             p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
         }
-        if(shape[1]==2){
+        if(shape[1]==4){
             p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
             p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
             p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
@@ -454,8 +454,8 @@ function experiment_covert_Helmholtz(p) {
     }
     if(reactiontime>100&&reactiontime<400){
         for(i=0;i<=line_number;i++){
-            p.line(-(illusion_size+shape[0])/2+(illusion_size+shape[0])*i/line_number,-illusion_size/2,-(illusion_size+shape[0])/2+(illusion_size+shape[0])*i/line_number,illusion_size/2)
-        }
+                p.line(-illusion_size/2,-(illusion_size+shpe[0])/2+(illusion_size+shape[0])*i/line_number,illusion_size/2,-(illusion_size+shape[0])/2+(illusion_size+shape[0])*i/line_number)
+            }
     }
   }
 
