@@ -776,13 +776,29 @@ function createRandomPairs(arr1, arr2) {
   });
 }
 
+function combineAndShuffle(arr1, arr2) {
+  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
+  const combined = [...arr1, ...arr2];
+
+  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
+  for (let i = combined.length - 1; i > 0; i--) {
+    // 0 から i の範囲でランダムな整数 j を生成
+    const j = Math.floor(Math.random() * (i + 1));
+    
+    // 要素 i と要素 j を入れ替える（分割代入を使用）
+    [combined[i], combined[j]] = [combined[j], combined[i]];
+  }
+
+  return combined;
+}
+
+
 let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,1,1,2,2,2,2,2]);
 let shape2 = [[0,3],[0,4]]
-let shape_c = shape1.concat(shape2)
 
 
 let factors_covert_Helmholtz = {
-  shape:shuffledArr2(shape_c),
+  shape:combineAndShuffle(shape1,shape2),
   pre_circle:[1,2]
 }
 
