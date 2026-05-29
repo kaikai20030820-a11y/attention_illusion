@@ -944,21 +944,19 @@ let p5_trial_experiment_overt_vertical_horizontal_td = {
   }
 }
 
-function experiment_n(p) {
+function experiment_n_Helmholtz(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let illusion = jsPsych.timelineVariable("illusion", true);
-  let effect_size = jsPsych.timelineVariable("effect_size", true);
+  let shape = jsPsych.timelineVariable("shape", true);
 
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.illusion = illusion
-    trial.data.effect_size = effect_size
+    trial.data.shape = shape
     
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -974,19 +972,8 @@ function experiment_n(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(illusion==1){
-        p.line(0,-illusion_size/2,0,illusion_size/2)
-        p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
-    }
-    if(illusion==2){
-        for(i=0;i<=line_number;i++){
-            p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
-        }
-    }
-    if(illusion==3){
-        for(i=0;i<=line_number;i++){
-            p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
-        }
+    for(i=0;i<=line_number;i++){
+        p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
     }
   }
 
@@ -1011,12 +998,74 @@ function experiment_n(p) {
 };
 
 
-let p5_trial_experiment_n = {
+let p5_trial_experiment_n_Helmholtz = {
   type: jsPsychP5,
-  sketch: experiment_n,
+  sketch: experiment_n_Helmholtz,
   // このトライアル用のスケッチ（関数）を指定
   data: {
-    task: 'trial_n',
+    task: 'trial_n_Helmholtz',
+  }
+}
+
+function experiment_n_vertical_horizontal(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    p.line(0,-illusion_size/2,0,illusion_size/2)
+    p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+
+let p5_trial_experiment_n_vertical_horizontal = {
+  type: jsPsychP5,
+  sketch: experiment_n_vertical_horizontal,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_n_vertical_horizontal',
   }
 }
 
@@ -1062,6 +1111,7 @@ function shuffleArray(array) {
 let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,1,1,2,2,2,2,2]);
 let shape2 = [[0,3],[0,4]]
 let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,2,2,3,3,3,4,4]);
+let factors_n = createRandomPairs([0,0,0,0,0,0,0,0,30,-30]);
 
 
 let factors_covert_Helmholtz = {
@@ -1081,11 +1131,6 @@ const shape_o = shape3.map(subArray => {
 let factors_overt = shape_o.flat()
 
 
-
-let factors_n = {
-  illusion:[1,2,3],
-  effect_size:[-60,-40,-20,0,20,40,60]
-}
 
 let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz,1)
 let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal,1)
@@ -1166,9 +1211,21 @@ let trial_experiment_overt_vertical_horizontal_td = {
   //ランダム化するか否か
 };
 
-let trial_experiment_n = {
+let trial_experiment_n_Helmholtz = {
   timeline: [blanck,
-    p5_trial_experiment_n,
+    p5_trial_experiment_n_Helmholtz,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_n,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_n_vertical_horizontal = {
+  timeline: [blanck,
+    p5_trial_experiment_n_vertical_horizontal,
     blanck],
   //刺激条件を代入
   timeline_variables: stimulus_list_n,
@@ -1203,8 +1260,10 @@ jsPsych.run([
   start_fullscreen,
   //start_plactice_n,
   //trial_experiment_plactice_n,
-  //start_experiment,
-  //trial_experiment_n,
+  start_experiment,
+  trial_experiment_n_Helmholtz,
+  start_experiment,
+  trial_experiment_n_vertical_horizontal,
   start_plactice_covert,
   trial_experiment_plactice_covert,
   start_experiment,
