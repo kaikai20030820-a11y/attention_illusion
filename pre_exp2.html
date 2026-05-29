@@ -1105,9 +1105,9 @@ let trial_experiment_covert_vertical_horizontal = {
   //ランダム化するか否か
 };
 
-let trial_experiment_lr = {
+let trial_experiment_overt_Helmholtz_lr = {
   timeline: [blanck,
-    p5_trial_experiment_lr,
+    p5_trial_experiment_overt_Helmholtz_lr,
     blanck],
   //刺激条件を代入
   timeline_variables: stimulus_list_overt,
@@ -1117,9 +1117,33 @@ let trial_experiment_lr = {
   //ランダム化するか否か
 };
 
-let trial_experiment_td = {
+let trial_experiment_overt_vertical_horizontal_lr = {
   timeline: [blanck,
-    p5_trial_experiment_td,
+    p5_trial_experiment_overt_vertical_horizontal_lr,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_Helmholtz_td = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_Helmholtz_td,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_vertical_horizontal_td = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_vertical_horizontal_td,
     blanck],
   //刺激条件を代入
   timeline_variables: stimulus_list_overt,
