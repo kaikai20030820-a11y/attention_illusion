@@ -505,7 +505,7 @@ function experiment_covert_vertical_horizontal(p) {
 
     
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -601,7 +601,7 @@ let p5_trial_experiment_covert_vertical_horizontal = {
   }
 }
 
-/*
+
 function experiment_overt_Helmholtz_lr(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
@@ -614,7 +614,7 @@ function experiment_overt_Helmholtz_lr(p) {
     trial.data.shape = shape
 
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -700,7 +700,7 @@ function experiment_overt_vertical_horizontal_lr(p) {
     trial.data.shape = shape
 
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -785,7 +785,7 @@ function experiment_overt_Helmholtz_td(p) {
     trial.data.shape = shape
 
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -871,7 +871,7 @@ function experiment_overt_vertical_horizontal_td(p) {
     trial.data.shape = shape
 
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -942,7 +942,7 @@ let p5_trial_experiment_overt_vertical_horizontal_td = {
   data: {
     task: 'trial_overt_vertical_horizontal_td',
   }
-}*/
+}
 
 function experiment_n(p) {
   // おまじない
@@ -1105,7 +1105,7 @@ let trial_experiment_covert_vertical_horizontal = {
   //ランダム化するか否か
 };
 
-/*let trial_experiment_lr = {
+let trial_experiment_lr = {
   timeline: [blanck,
     p5_trial_experiment_lr,
     blanck],
@@ -1127,7 +1127,7 @@ let trial_experiment_td = {
   //繰り返しの数
   //randomize_order: true,
   //ランダム化するか否か
-};*/
+};
 
 let trial_experiment_n = {
   timeline: [blanck,
@@ -1169,19 +1169,19 @@ jsPsych.run([
   start_experiment,
   trial_experiment_n,
   start_plactice_covert,
-  trial_experiment_plactice_covert,*/
+  trial_experiment_plactice_covert,
   start_experiment,
   trial_experiment_covert_Helmholtz,
   start_experiment,
-  trial_experiment_covert_vertical_horizontal,
- /* start_experiment,
+  trial_experiment_covert_vertical_horizontal,*/
+  start_experiment,
   trial_experiment_overt_Helmholtz_lr,
   start_experiment,
   trial_experiment_overt_vertical_horizontal_lr,
   start_experiment,
   trial_experiment_overt_Helmholtz_td,
   start_experiment,
-  trial_experiment_covert_vertical_horizontal_td,*/
+  trial_experiment_covert_vertical_horizontal_td,
   save_data,
   inst_closing,
   end_fullscreen])
