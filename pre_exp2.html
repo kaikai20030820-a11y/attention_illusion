@@ -606,7 +606,7 @@ function experiment_overt_Helmholtz_lr(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let shape = jsPsych.timelineVariable("shape", true);
+  let shape = jsPsych.timelineVariable("stimulus_list_overt", true);
 
 
   p.setup = function () {
@@ -777,7 +777,7 @@ function experiment_overt_Helmholtz_td(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let shape = jsPsych.timelineVariable("shape", true);
+  let shape = jsPsych.timelineVariable("stimulus_list_overt", true);
 
 
   p.setup = function () {
@@ -1066,9 +1066,7 @@ let factors_covert_vertical_horizontal = {
   pre_circle:[1,2]
 }
 
-let factors_overt = {
-  shape:shape_o.flat(),
-}
+let stimulus_list_overt = shape_o.flat()
 
 
 let factors_n = {
@@ -1078,7 +1076,7 @@ let factors_n = {
 
 let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz,1)
 let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal,1)
-let stimulus_list_overt = jsPsych.factorial(factors_overt,1)
+//let stimulus_list_overt = jsPsych.factorial(factors_overt,1)
 let stimulus_list_n = jsPsych.randomization.factorial(factors_n,2)
 
 let trial_experiment_covert_Helmholtz = {
