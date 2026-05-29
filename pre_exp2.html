@@ -1050,10 +1050,18 @@ function combineAndShuffle(arr1, arr2) {
   return combined;
 }
 
+function shuffleArray(array) {
+  const cloneArray = [...array];
+  for (let i = cloneArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
+  }
+  return cloneArray;
+}
 
 let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,1,1,2,2,2,2,2]);
 let shape2 = [[0,3],[0,4]]
-let shape_o = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,2,2,3,3,3,4,4]);
+let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,2,2,3,3,3,4,4]);
 
 
 let factors_covert_Helmholtz = {
@@ -1066,7 +1074,13 @@ let factors_covert_vertical_horizontal = {
   pre_circle:[1,2]
 }
 
+const shape_o = shape3.map(subArray => {
+  return shuffleArray(subArray);
+});
+
 let factors_overt = shape_o.flat()
+
+
 
 let factors_n = {
   illusion:[1,2,3],
