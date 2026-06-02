@@ -1250,7 +1250,7 @@ let trial_experiment_n_vertical_horizontal = {
   //ランダム化するか否か
 };
 
-const experiments_blocks = {
+const experiments = {
   timeline: [
     // 各ブロックを { timeline: [教示, 試行] } の形でグループ化します
     { timeline: [start_experiment, trial_experiment_n_Helmholtz] },
@@ -1264,7 +1264,7 @@ const experiments_blocks = {
   ] 
 };
 
-let experiments = jsPsych.randomization.factorial(experiments_blocks)
+//let experiments = jsPsych.randomization.shuffle(experiments_blocks)
 
 const save_data = {
     type: jsPsychPipe,
