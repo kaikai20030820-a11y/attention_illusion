@@ -70,7 +70,7 @@ var get_par_info = {
 const blanck = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: '<p> </p>',
-  choices: ['NO_KEYS'],
+  choices: 'NO_KEYS',
   // どのキー入力も受け付けない
   data: {
     task: 'blank'
@@ -82,10 +82,15 @@ const blanck = {
 const instruction_before_practice = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  'モニターに図形が表示されます<br>'+
-  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
-  '短いと感じた場合は「F」キーを押してください<br>'+
-  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
+  '<p>これからモニターに図形が表示されます。</p>' +
+  '<p>図形の縦と横の長さを比べて、以下のようにキーボードで回答してください：</p>' +
+  '<ul>' +
+  '<li>縦の長さが横より<strong>長い</strong>と感じた場合 ➡ <strong>「J」キー</strong></li>' +
+  '<li>縦の長さが横より<strong>短い</strong>と感じた場合 ➡ <strong>「F」キー</strong></li>' +
+  '</ul>' +
+  '<p>準備ができましたら、練習を始めます。「次へ」を押してください。</p>' +
+  '</div>',
   canvas_size: [Canvaswidth,
     Canvasheight],
   choices: ['次へ'],
@@ -187,10 +192,16 @@ let trial_experiment_plactice = {
 const instruction_before_practice_covert = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  'モニターに「○」または「×」が表示された後,図形が表示されます<br>'+
-  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを,短いと感じた場合は「F」キーを押してください<br>'+
-  '図が表示される前の「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
-  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
+  '<p>モニターに「○」または「×」が表示された後、図形が表示されます。</p>' +
+  '<p>図形の長さを比べて、先ほどと同じように回答してください（<strong>長い：Jキー / 短い：Fキー</strong>）。</p>' +
+  '<hr>' +
+  '<p><strong>※注意※</strong></p>' +
+  '<p>図形が表示される前の「○」と「×」が<strong>一致していない場合</strong>（例：○と×が1つずつ出た場合）は、<br>' +
+  '回答せずに <strong>「SPACE」キー</strong> を押してスキップしてください。</p>' +
+  '<hr>' +
+  '<p>準備ができましたら、練習を始めます。「次へ」を押してください。</p>' +
+  '</div>',
   canvas_size: [Canvaswidth,
     Canvasheight],
   choices: ['次へ'],
@@ -222,12 +233,19 @@ start_experiment = {
 const instruction_overt_lr = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  '次のブロックでは「○」または「×」もしくは図形が表示されます<br>'+
-  '「○」または「×」が表示された場合,2つの図形が一致している場合は「右矢印キー(→)」<br>'+
-  '一致していない場合は「左矢印キー(←)」を押してください<br>'+
-  '「○」または「×」は左右に表示されます<br>'+
-  '図形が表示された場合,縦の長さが横の長さより長いと感じた場合は「J」キーを,短いと感じた場合は「F」キーを押してください<br>'+
-  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
+  '<p>次のブロックでは、「○・×の図形」または「線分の図形」のどちらかが表示されます。</p>' +
+  '<p><strong>【１】「○・×」が左右に表示された場合：</strong></p>' +
+  '<ul>' +
+  '<li>2つの図形が<strong>一致している</strong>場合 ➡ <strong>右矢印キー（→）</strong></li>' +
+  '<li>2つの図形が<strong>一致していない</strong>場合 ➡ <strong>左矢印キー（←）</strong></li>' +
+  '</ul>' +
+  '<p><strong>【２】「線分の図形」が表示された場合：</strong></p>' +
+  '<ul>' +
+  '<li>これまでと同様に、縦が長ければ<strong>「J」キー</strong>、短ければ<strong>「F」キー</strong>を押してください。</li>' +
+  '</ul>' +
+  '<p>準備ができましたら、練習を始めます。「次へ」を押してください。</p>' +
+  '</div>',
   canvas_size: [Canvaswidth,
     Canvasheight],
   choices: ['次へ'],
@@ -243,12 +261,19 @@ start_experiment_lr = {
 const instruction_overt_td = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  '次のブロックでは「○」または「×」もしくは図形が表示されます<br>'+
-  '「○」または「×」が表示された場合,2つの図形が一致している場合は「右矢印キー(→)」<br>'+
-  '一致していない場合は「左矢印キー(←)」を押してください<br>'+
-  '「○」または「×」は上下に表示されます<br>'+
-  '図形が表示された場合,縦の長さが横の長さより長いと感じた場合は「J」キーを,短いと感じた場合は「F」キーを押してください<br>'+
-  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
+  '<p>次のブロックでは、「○・×の図形」または「線分の図形」のどちらかが表示されます。</p>' +
+  '<p><strong>【１】「○・×」が上下に表示された場合：</strong></p>' +
+  '<ul>' +
+  '<li>2つの図形が<strong>一致している</strong>場合 ➡ <strong>右矢印キー（→）</strong></li>' +
+  '<li>2つの図形が<strong>一致していない</strong>場合 ➡ <strong>左矢印キー（←）</strong></li>' +
+  '</ul>' +
+  '<p><strong>【２】「線分の図形」が表示された場合：</strong></p>' +
+  '<ul>' +
+  '<li>これまでと同様に、縦が長ければ<strong>「J」キー</strong>、短ければ<strong>「F」キー</strong>を押してください。</li>' +
+  '</ul>' +
+  '<p>準備ができましたら、練習を始めます。「次へ」を押してください。</p>' +
+  '</div>',
   canvas_size: [Canvaswidth,
     Canvasheight],
   choices: ['次へ'],
@@ -1375,7 +1400,6 @@ jsPsych.run([
   start_fullscreen,
   start_plactice,
   trial_experiment_plactice,
-  start_experiment_lr,
   ...experiments,
   save_data,
   inst_closing,
