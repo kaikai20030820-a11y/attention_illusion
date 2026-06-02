@@ -689,28 +689,30 @@ function experiment_overt_vertical_horizontal_lr(p) {
   }
 
 
+    p.keyTyped = function() {
+        if (p.key === 'f') {
+            trial.data.result = 0
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+        if (p.key === 'j') {
+            trial.data.result = 1
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+    }
     p.keyPressed = function() {
-      // アルファベットキー（J, F, スペース）は p.key を使う
-      if (p.key === 'f') {
-          trial.data.result = 0;
-          trial.data.rt = reactiontime;
-          trial.end_trial();
-      } else if (p.key === 'j') {
-          trial.data.result = 1;
-          trial.data.rt = reactiontime;
-          trial.end_trial();
-      }
-      // 矢印キーは p.keyCode を使う
-      else if (p.keyCode === p.LEFT_ARROW) {
-          trial.data.result = 3;
-          trial.data.rt = reactiontime;
-          trial.end_trial();
-      } else if (p.keyCode === p.RIGHT_ARROW) {
-          trial.data.result = 4;
-          trial.data.rt = reactiontime;
-          trial.end_trial();
-      }
-  };
+        if (p.keyCode === p.LEFT_ARROW) {
+            trial.data.result = 3
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+        if (p.keyCode === p.RIGHT_ARROW) {
+            trial.data.result = 4
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+    }
 }
 
 let p5_trial_experiment_overt_vertical_horizontal_lr = {
@@ -1398,7 +1400,6 @@ jsPsych.run([
   start_fullscreen,
   start_plactice,
   trial_experiment_plactice,
-  trial_experiment_overt_vertical_horizontal_lr,
   ...experiments,
   save_data,
   inst_closing,
