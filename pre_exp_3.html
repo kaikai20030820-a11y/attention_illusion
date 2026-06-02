@@ -167,7 +167,7 @@ let p5_trial_experiment_plactice = {
 
 let plactice_factors = {
   illusion:[1,2],
-  effect_size:[-10,0,10]
+  effect_size:[-30,0,30]
 }
 
 let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors,1)
@@ -1144,7 +1144,7 @@ const shape_o = shape3.map(subArray => {
 let factors_overt = shape_o.flat()
 
 let factors_n = {
-    shape:[0,0,0,0,0,0,0,0,30,-30]
+    effect_size:[0,0,0,0,0,0,0,0,30,-30]
 }
 
 let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz,1)
