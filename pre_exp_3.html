@@ -669,28 +669,26 @@ function experiment_overt_Helmholtz_lr(p) {
 
 
     p.keyTyped = function() {
-        if (p.key === 'f'&&(shape>=1||shape<=4)) {
+        if (p.key === 'f') {
             trial.data.result = 0
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
-        if (p.key === 'j'&&(shape>=1||shape<=4)) {
+        if (p.key === 'j') {
             trial.data.result = 1
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
-    };
-    p.mouseIspressed = function(){
-        if(p.mouseButton == LEFT&&(shape<=0||shape==30)){
-                trial.data.result = 0
-                trial.data.rt = reactiontime;
-                trial.end_trial();
-        }
-        if(p.mouseButton == RIGHT&&(shape<=0||shape==30)){
-                trial.data.result = 1
-                trial.data.rt = reactiontime;
-                trial.end_trial();
-        }
+        if (p.key === 'ArroeLeft') {
+            trial.data.result = 3
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+        if (p.key === 'ArrowRight') {
+            trial.data.result = 4
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
     }
 }
 
