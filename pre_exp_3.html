@@ -533,7 +533,7 @@ function experiment_overt_Helmholtz_lr(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=300&&(shape>=1||shape<=4)){
+    if(reactiontime<=300&&(shape>=1&&shape<=4)){
         if(shape==1){
             p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
             p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
@@ -635,7 +635,7 @@ function experiment_overt_vertical_horizontal_lr(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=300&&(shape>=1||shape<=4)){
+    if(reactiontime<=300&&(shape>=1&&shape<=4)){
         if(shape==1){
             p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
             p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
@@ -736,7 +736,7 @@ function experiment_overt_Helmholtz_td(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=300&&(shape>=1||shape<=4)){
+    if(reactiontime<=300&&(shape>=1&&shape<=4)){
         if(shape==1){
             p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
             p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
@@ -838,7 +838,7 @@ function experiment_overt_vertical_horizontal_td(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=300&&(shape>=1||shape<=4)){
+    if(reactiontime<=300&&(shape>=1&&shape<=4)){
         if(shape==1){
             p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
             p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
