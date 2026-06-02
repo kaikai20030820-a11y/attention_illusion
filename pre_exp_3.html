@@ -79,10 +79,10 @@ const blanck = {
 };
 
 // 教示
-const instruction_before_practice_n = {
+const instruction_before_practice = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
+  'モニターに図形が表示されます<br>'+
   '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
   '準備ができましたら、練習を始めます。「次へ」を押してください。',
   canvas_size: [Canvaswidth,
@@ -93,25 +93,25 @@ const instruction_before_practice_n = {
   },
 };
 
-start_plactice_n = {
-  timeline: [get_par_info,instruction_before_practice_n]
+start_plactice = {
+  timeline: [get_par_info,instruction_before_practice]
 }
 
-function experiment_plactice_n(p) {
+function experiment_plactice(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
   let illusion = jsPsych.timelineVariable("illusion", true);
+  let effect_size = jsPsych.timelineVariable("effect_size", true);
 
 
   p.setup = function () {
     //刺激のデータ
     trial.data.illusion = illusion
+    trial.data.effect_size = effect_size
     
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
-    circle_size = 50
-    circle_dis = 50//先行研究を確認する
+    illusion_size = 150
     line_number = 10
     nw0 = p.millis();
     p.noCursor()
@@ -126,18 +126,10 @@ function experiment_plactice_n(p) {
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
     if(illusion==1){
-        effect_size=-60
         p.line(0,-illusion_size/2,0,illusion_size/2)
         p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
     }
     if(illusion==2){
-        effect_size=60
-        for(i=0;i<=line_number;i++){
-            p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
-        }
-    }
-    if(illusion==3){
-        effect_size=-60
         for(i=0;i<=line_number;i++){
             p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
         }
@@ -164,27 +156,28 @@ function experiment_plactice_n(p) {
   };
 };
 
-let p5_trial_experiment_plactice_n = {
+let p5_trial_experiment_plactice = {
   type: jsPsychP5,
-  sketch: experiment_plactice_n,
+  sketch: experiment_plactice,
   // このトライアル用のスケッチ（関数）を指定
   data: {
-    task: 'plactice_n',
+    task: 'plactice',
   }
 }
 
-let plactice_factors_n = {
-  illusion:[1,2,3]
+let plactice_factors = {
+  illusion:[1,2],
+  effect_size:[-10,0,10]
 }
 
-let stimulus_plactice_n = jsPsych.randomization.factorial(plactice_factors_n,1)
+let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors,1)
 
-let trial_experiment_plactice_n = {
+let trial_experiment_plactice = {
   timeline: [blanck,
-    p5_trial_experiment_plactice_n,
+    p5_trial_experiment_plactice,
     blanck],
   //刺激条件を代入
-  timeline_variables: stimulus_plactice_n,
+  timeline_variables: stimulus_plactice,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
@@ -195,10 +188,9 @@ let trial_experiment_plactice_n = {
 const instruction_before_practice_covert = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
-  'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
-  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
-  '図形の縦の長さが横の長さより短いと感じた場合は「F」キーを押してください<br>'+
-  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  'モニターに「○」または「×」が表示された後,図形が表示されます<br>'+
+  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを,短いと感じた場合は「F」キーを押してください<br>'+
+  '図が表示される前の「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
   '準備ができましたら、練習を始めます。「次へ」を押してください。',
   canvas_size: [Canvaswidth,
     Canvasheight],
@@ -216,16 +208,18 @@ function experiment_plactice_covert(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let illusion = jsPsych.timelineVariable("illusion", true);
-
+  let pre_circle = jsPsych.timelineVariable("pre_circle", true);
+  let shape = jsPsych.timelineVariable("shape", true);
 
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.illusion = illusion
+    trial.data.pre_circle = pre_circle
+    trial.data.shape = shape
+
     
     p.createCanvas(Canvaswidth,Canvasheight);
-    illusion_size = 300
+    illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
     line_number = 10
@@ -241,38 +235,53 @@ function experiment_plactice_covert(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    if(reactiontime<=100&&illusion==1){
-        p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
-        p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+    if(reactiontime<=100&&pre_circle==1){
+        if(shape[1]==1){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
     }
-    if(reactiontime<=100&&illusion==2){
-        p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
-        p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
-        p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
-        p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+    if(reactiontime<=100&&pre_circle==2){
+        if(shape[1]==1){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
     }
-    if(reactiontime<=100&&illusion==3){
-        p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
-        p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
-        p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
-        }
-    if(reactiontime>100&&reactiontime<300){
-        if(illusion==1){
-            effect_size=60
-            p.line(0,-illusion_size/2,0,illusion_size/2)
-            p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
-        }
-        if(illusion==2){
-            effect_size=-60
-            for(i=0;i<=line_number;i++){
-                p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
-            }
-        }
-        if(illusion==3){
-            effect_size=60
-            for(i=0;i<=line_number;i++){
-                p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
-            }
+    if(reactiontime>100&&reactiontime<400){
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+shape[0]/2)/2+(illusion_size+shape[0]/2)*i/line_number,illusion_size/2,-(illusion_size+shape[0]/2)/2+(illusion_size+shape[0]/2)*i/line_number)
         }
     }
   }
@@ -358,18 +367,59 @@ let p5_trial_experiment_plactice_covert = {
   }
 }
 
-let plactice_factors_covert = {
-  illusion:[1,2,3]
+
+function createRandomPairs(arr1, arr2) {
+  // 1. 2つ目の配列のコピーを作り、ランダムにシャッフルする
+  const shuffledArr2 = [...arr2];
+  for (let i = shuffledArr2.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArr2[i], shuffledArr2[j]] = [shuffledArr2[j], shuffledArr2[i]];
+  }
+
+  // 2. 1つ目の配列を基準にして、シャッフルされた2つ目の配列とペアにする
+  return arr1.map((item, index) => {
+    return [item, shuffledArr2[index]];
+  });
 }
 
-let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors_covert,1)
+function combineAndShuffle(arr1, arr2) {
+  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
+  const combined = [...arr1, ...arr2];
+
+  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
+  for (let i = combined.length - 1; i > 0; i--) {
+    // 0 から i の範囲でランダムな整数 j を生成
+    const j = Math.floor(Math.random() * (i + 1));
+    
+    // 要素 i と要素 j を入れ替える（分割代入を使用）
+    [combined[i], combined[j]] = [combined[j], combined[i]];
+  }
+
+  return combined;
+}
+
+function shuffleArray(array) {
+  const cloneArray = [...array];
+  for (let i = cloneArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
+  }
+  return cloneArray;
+}
+
+let plactice_factors_covert = {
+  shape:createRandomPairs([0,30,-30],[1,1,2,2]),
+  pre_circle:[1,2]
+}
+
+let stimulus_plactice_covert_Helmholtz = jsPsych.randomization.factorial(plactice_factors_covert,1)
 
 let trial_experiment_plactice_covert = {
   timeline: [blanck,
     p5_trial_experiment_plactice_covert,
     blanck],
   //刺激条件を代入
-  timeline_variables: stimulus_plactice,
+  timeline_variables: stimulus_plactice_covert_Helmholtz,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
@@ -1069,44 +1119,6 @@ let p5_trial_experiment_n_vertical_horizontal = {
   }
 }
 
-function createRandomPairs(arr1, arr2) {
-  // 1. 2つ目の配列のコピーを作り、ランダムにシャッフルする
-  const shuffledArr2 = [...arr2];
-  for (let i = shuffledArr2.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArr2[i], shuffledArr2[j]] = [shuffledArr2[j], shuffledArr2[i]];
-  }
-
-  // 2. 1つ目の配列を基準にして、シャッフルされた2つ目の配列とペアにする
-  return arr1.map((item, index) => {
-    return [item, shuffledArr2[index]];
-  });
-}
-
-function combineAndShuffle(arr1, arr2) {
-  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
-  const combined = [...arr1, ...arr2];
-
-  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
-  for (let i = combined.length - 1; i > 0; i--) {
-    // 0 から i の範囲でランダムな整数 j を生成
-    const j = Math.floor(Math.random() * (i + 1));
-    
-    // 要素 i と要素 j を入れ替える（分割代入を使用）
-    [combined[i], combined[j]] = [combined[j], combined[i]];
-  }
-
-  return combined;
-}
-
-function shuffleArray(array) {
-  const cloneArray = [...array];
-  for (let i = cloneArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
-  }
-  return cloneArray;
-}
 
 let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,1,1,2,2,2,2,2]);
 let shape2 = [[0,3],[0,4]]
@@ -1235,6 +1247,22 @@ let trial_experiment_n_vertical_horizontal = {
   //ランダム化するか否か
 };
 
+const experiments = {
+  timeline: [
+    // 各ブロックを { timeline: [教示, 試行] } の形でグループ化します
+    { timeline: [start_experiment, trial_experiment_n_Helmholtz] },
+    { timeline: [start_experiment, trial_experiment_n_vertical_horizontal] },
+    { timeline: [start_plactice_covert,start_experiment, trial_experiment_covert_Helmholtz] },
+    { timeline: [start_plactice_covert,start_experiment, trial_experiment_covert_vertical_horizontal] },
+    { timeline: [start_experiment, trial_experiment_overt_Helmholtz_lr] },
+    { timeline: [start_experiment, trial_experiment_overt_vertical_horizontal_lr] },
+    { timeline: [start_experiment, trial_experiment_overt_Helmholtz_td] },
+    { timeline: [start_experiment, trial_experiment_overt_vertical_horizontal_td] }
+  ],
+  // これを true にすることで、上記8つのブロックの実行順序が参加者ごとにシャッフルされます
+  randomize_order: true 
+};
+
 const save_data = {
     type: jsPsychPipe,
     action: "save",
@@ -1258,26 +1286,9 @@ var inst_closing = {
 
 jsPsych.run([
   start_fullscreen,
-  //start_plactice_n,
-  //trial_experiment_plactice_n,
-  start_experiment,
-  trial_experiment_n_Helmholtz,
-  start_experiment,
-  trial_experiment_n_vertical_horizontal,
-  start_plactice_covert,
-  trial_experiment_plactice_covert,
-  start_experiment,
-  trial_experiment_covert_Helmholtz,
-  start_experiment,
-  trial_experiment_covert_vertical_horizontal,
-  start_experiment,
-  trial_experiment_overt_Helmholtz_lr,
-  start_experiment,
-  trial_experiment_overt_vertical_horizontal_lr,
-  start_experiment,
-  trial_experiment_overt_Helmholtz_td,
-  start_experiment,
-  trial_experiment_overt_vertical_horizontal_td,
+  start_plactice,
+  trial_experiment_plactice,
+  experiments,
   //save_data,
   inst_closing,
   end_fullscreen])
