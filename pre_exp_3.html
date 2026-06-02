@@ -70,7 +70,7 @@ var get_par_info = {
 const blanck = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: '<p> </p>',
-  choices: [' '],
+  choices: ['NO_KEYS'],
   // どのキー入力も受け付けない
   data: {
     task: 'blank'
@@ -708,7 +708,7 @@ function experiment_overt_Helmholtz_td(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let shape = jsPsych.timelineVariable("stimulus_list_overt", true);
+  let shape = jsPsych.timelineVariable("shape", true);
 
 
   p.setup = function () {
@@ -1261,7 +1261,7 @@ let trial_experiment_overt_Helmholtz_lr = {
     p5_trial_experiment_overt_Helmholtz_lr,
     blanck],
   //刺激条件を代入
-  timeline_variables: shape,
+  timeline_variables: stimulus_list_overt,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
@@ -1273,7 +1273,7 @@ let trial_experiment_overt_vertical_horizontal_lr = {
     p5_trial_experiment_overt_vertical_horizontal_lr,
     blanck],
   //刺激条件を代入
-  timeline_variables: shape,
+  timeline_variables: stimulus_list_overt,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
