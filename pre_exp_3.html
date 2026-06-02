@@ -1250,8 +1250,7 @@ let trial_experiment_n_vertical_horizontal = {
   //ランダム化するか否か
 };
 
-const experiments_blocks = {
-  timeline: [
+const experiments_blocks = [
     // 各ブロックを { timeline: [教示, 試行] } の形でグループ化します
     { timeline: [start_experiment, trial_experiment_n_Helmholtz] },
     { timeline: [start_experiment, trial_experiment_n_vertical_horizontal] },
@@ -1261,8 +1260,7 @@ const experiments_blocks = {
     { timeline: [start_experiment, trial_experiment_overt_vertical_horizontal_lr] },
     { timeline: [start_experiment, trial_experiment_overt_Helmholtz_td] },
     { timeline: [start_experiment, trial_experiment_overt_vertical_horizontal_td] }
-  ] 
-};
+  ];
 
 let experiments = jsPsych.randomization.shuffle(experiments_blocks)
 
