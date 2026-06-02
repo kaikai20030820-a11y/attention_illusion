@@ -563,7 +563,7 @@ function experiment_overt_Helmholtz_lr(p) {
   }
 
 
-    p.keyPressed = function() {
+    p.keyTyped = function() {
         if (p.key === 'f') {
             trial.data.result = 0
             trial.data.rt = reactiontime;
@@ -574,6 +574,8 @@ function experiment_overt_Helmholtz_lr(p) {
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
+    }
+    p.keyPressed = function() {
         if (p.keyCode === p.LEFT_ARROW) {
             trial.data.result = 3
             trial.data.rt = reactiontime;
@@ -662,7 +664,7 @@ function experiment_overt_vertical_horizontal_lr(p) {
   }
 
 
-    p.keyPressed = function() {
+    p.keyTyped = function() {
         if (p.key === 'f') {
             trial.data.result = 0
             trial.data.rt = reactiontime;
@@ -673,6 +675,8 @@ function experiment_overt_vertical_horizontal_lr(p) {
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
+    }
+    p.keyPressed = function() {
         if (p.keyCode === p.LEFT_ARROW) {
             trial.data.result = 3
             trial.data.rt = reactiontime;
@@ -762,7 +766,7 @@ function experiment_overt_Helmholtz_td(p) {
   }
 
 
-    p.keyPressed = function() {
+    p.keyTyped = function() {
         if (p.key === 'f') {
             trial.data.result = 0
             trial.data.rt = reactiontime;
@@ -773,6 +777,8 @@ function experiment_overt_Helmholtz_td(p) {
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
+    }
+    p.keyPressed = function() {
         if (p.keyCode === p.LEFT_ARROW) {
             trial.data.result = 3
             trial.data.rt = reactiontime;
@@ -783,7 +789,7 @@ function experiment_overt_Helmholtz_td(p) {
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
-    };
+    }
 };
 
 let p5_trial_plactice_overt_Helmholtz_td = {
@@ -861,7 +867,7 @@ function experiment_overt_vertical_horizontal_td(p) {
   }
 
 
-    p.keyPressed = function() {
+    p.keyTyped = function() {
         if (p.key === 'f') {
             trial.data.result = 0
             trial.data.rt = reactiontime;
@@ -872,6 +878,8 @@ function experiment_overt_vertical_horizontal_td(p) {
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
+    }
+    p.keyPressed = function() {
         if (p.keyCode === p.LEFT_ARROW) {
             trial.data.result = 3
             trial.data.rt = reactiontime;
