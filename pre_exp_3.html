@@ -368,44 +368,6 @@ let p5_trial_experiment_plactice_covert = {
 }
 
 
-function createRandomPairs(arr1, arr2) {
-  // 1. 2つ目の配列のコピーを作り、ランダムにシャッフルする
-  const shuffledArr2 = [...arr2];
-  for (let i = shuffledArr2.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArr2[i], shuffledArr2[j]] = [shuffledArr2[j], shuffledArr2[i]];
-  }
-
-  // 2. 1つ目の配列を基準にして、シャッフルされた2つ目の配列とペアにする
-  return arr1.map((item, index) => {
-    return [item, shuffledArr2[index]];
-  });
-}
-
-function combineAndShuffle(arr1, arr2) {
-  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
-  const combined = [...arr1, ...arr2];
-
-  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
-  for (let i = combined.length - 1; i > 0; i--) {
-    // 0 から i の範囲でランダムな整数 j を生成
-    const j = Math.floor(Math.random() * (i + 1));
-    
-    // 要素 i と要素 j を入れ替える（分割代入を使用）
-    [combined[i], combined[j]] = [combined[j], combined[i]];
-  }
-
-  return combined;
-}
-
-function shuffleArray(array) {
-  const cloneArray = [...array];
-  for (let i = cloneArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
-  }
-  return cloneArray;
-}
 
 let plactice_factors_covert = {
   shape:[0,1],
@@ -1117,6 +1079,46 @@ let p5_trial_experiment_n_vertical_horizontal = {
   data: {
     task: 'trial_n_vertical_horizontal',
   }
+}
+
+
+function createRandomPairs(arr1, arr2) {
+  // 1. 2つ目の配列のコピーを作り、ランダムにシャッフルする
+  const shuffledArr2 = [...arr2];
+  for (let i = shuffledArr2.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArr2[i], shuffledArr2[j]] = [shuffledArr2[j], shuffledArr2[i]];
+  }
+
+  // 2. 1つ目の配列を基準にして、シャッフルされた2つ目の配列とペアにする
+  return arr1.map((item, index) => {
+    return [item, shuffledArr2[index]];
+  });
+}
+
+function combineAndShuffle(arr1, arr2) {
+  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
+  const combined = [...arr1, ...arr2];
+
+  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
+  for (let i = combined.length - 1; i > 0; i--) {
+    // 0 から i の範囲でランダムな整数 j を生成
+    const j = Math.floor(Math.random() * (i + 1));
+    
+    // 要素 i と要素 j を入れ替える（分割代入を使用）
+    [combined[i], combined[j]] = [combined[j], combined[i]];
+  }
+
+  return combined;
+}
+
+function shuffleArray(array) {
+  const cloneArray = [...array];
+  for (let i = cloneArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
+  }
+  return cloneArray;
 }
 
 
