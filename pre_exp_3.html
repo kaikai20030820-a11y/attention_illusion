@@ -668,37 +668,30 @@ function experiment_overt_Helmholtz_lr(p) {
   }
 
 
-    if (shape>=1||shape<=4){
-        p.keyTyped = function() {
-            if (p.key === 'f') {
+    p.keyTyped = function() {
+        if (p.key === 'f'&&(shape>=1||shape<=4)) {
             trial.data.result = 0
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
-         if (p.key === 'j') {
+        if (p.key === 'j'&&(shape>=1||shape<=4)) {
             trial.data.result = 1
             trial.data.rt = reactiontime;
             trial.end_trial();
         };
     };
-    }
-    if (shape>=1||shape<=4){
-        p.mouseIspressed = function(){
-            if(p.mouseButton == LEFT){
+    p.mouseIspressed = function(){
+        if(p.mouseButton == LEFT&&(shape<=0||shape==30)){
                 trial.data.result = 0
                 trial.data.rt = reactiontime;
                 trial.end_trial();
-            }
         }
-        p.mouseIspressed = function(){
-            if(p.mouseButton == RIGHT){
+        if(p.mouseButton == RIGHT&&(shape<=0||shape==30)){
                 trial.data.result = 1
                 trial.data.rt = reactiontime;
                 trial.end_trial();
-            }
         }
     }
-};
 
 let p5_trial_experiment_overt_Helmholtz_lr = {
   type: jsPsychP5,
