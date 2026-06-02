@@ -960,12 +960,12 @@ function experiment_n_Helmholtz(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let shape = jsPsych.timelineVariable("shape", true);
+  let effect_size = jsPsych.timelineVariable("effect_size", true);
 
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    trial.data.effect_size = effect_size
     
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
@@ -1023,12 +1023,12 @@ function experiment_n_vertical_horizontal(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
-  let shape = jsPsych.timelineVariable("shape", true);
+  let effect_size = jsPsych.timelineVariable("effect_size", true);
 
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    trial.data.effect_size = effect_size
     
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
