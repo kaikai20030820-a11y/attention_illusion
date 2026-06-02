@@ -237,10 +237,10 @@ const instruction_overt_lr = {
 };
 
 start_experiment_lr = {
-  timeline: [instruction_lr]
+  timeline: [instruction_overt_lr]
 }
 
-const instruction_td = {
+const instruction_overt_td = {
   type: jsPsychHtmlButtonResponse,
   stimulus:
   '次のブロックでは「○」または「×」もしくは図形が表示されます<br>'+
@@ -258,7 +258,7 @@ const instruction_td = {
 };
 
 start_experiment_td = {
-  timeline: [instruction_td]
+  timeline: [instruction_overt_td]
 }
 
 
@@ -1365,11 +1365,10 @@ var inst_closing = {
 
 jsPsych.run([
   start_fullscreen,
-  //start_plactice,
-  //trial_experiment_plactice,
-  trial_experiment_overt_Helmholtz_lr,
+  start_plactice,
+  trial_experiment_plactice,
   ...experiments,
-  //save_data,
+  save_data,
   inst_closing,
   end_fullscreen])
 
