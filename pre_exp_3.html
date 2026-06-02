@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+    
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> 
+
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.2.0"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    
+    <script src="p5.min.js"></script> 
+    <script src="jspsych-p5.js"></script>
+    
+  </head>
+  <body></body>
+  <script>
+    const jsPsych = initJsPsych();
+
+    // DataPipe 2
+    const subject_id = jsPsych.randomization.randomID(10);
+    const filename = `${subject_id}.csv`;
+
+let current_trial_index = 0;
+Canvaswidth = 1000;
+Canvasheight = 600;
+
+// ウィンドウサイズの最大化 --------------------------------------------------------------
+var start_fullscreen = {
+  type: jsPsychFullscreen,
+  message: '<p>ウィンドウサイズを最大化します。下のボタンを押してください。</p>',
+  button_label: '次へ',
+  fullscreen_mode: true,
+  data: {
+    task: 'instruction'
+  },
+};
+//最大化の解除
+var end_fullscreen = {
+  type: jsPsychFullscreen,
+  fullscreen_mode: false,
+  data: {
+    task: 'instruction'
+  },
+};
+
+// 実験参加者の情報 --------------------------------------------------------
+var par_info = {
+  type: jsPsychSurveyText,
+  questions: [{
+    prompt: '参加者IDを入力してください',
+    columns: 10,
+    required: true,
+    name: 'participantID'
+  },
+  ],
+  button_label: '次へ',
+};
+
+
+var get_par_info = {
+  timeline: [par_info],
+};
+
+const blanck = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<p> </p>',
+  choices: [' '],
+  // どのキー入力も受け付けない
+  data: {
+    task: 'blank'
+  },
+  trial_duration: 500,
+};
+
+// 教示
+const instruction_before_practice_n = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
+  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
+  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_plactice_n = {
+  timeline: [get_par_info,instruction_before_practice_n]
+}
+
+function experiment_plactice_n(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let illusion = jsPsych.timelineVariable("illusion", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.illusion = illusion
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 300
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(illusion==1){
+        effect_size=-60
+        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+    }
+    if(illusion==2){
+        effect_size=60
+        for(i=0;i<=line_number;i++){
+            p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
+        }
+    }
+    if(illusion==3){
+        effect_size=-60
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_plactice_n = {
+  type: jsPsychP5,
+  sketch: experiment_plactice_n,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'plactice_n',
+  }
+}
+
+let plactice_factors_n = {
+  illusion:[1,2,3]
+}
+
+let stimulus_plactice_n = jsPsych.randomization.factorial(plactice_factors_n,1)
+
+let trial_experiment_plactice_n = {
+  timeline: [blanck,
+    p5_trial_experiment_plactice_n,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_plactice_n,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+// 教示
+const instruction_before_practice_covert = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  'モニターに「○」または「×」が表示された後,2種類の図形が表示されます<br>'+
+  '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
+  '図形の縦の長さが横の長さより短いと感じた場合は「F」キーを押してください<br>'+
+  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  '準備ができましたら、練習を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_plactice_covert = {
+  timeline: [get_par_info,instruction_before_practice_covert]
+}
+
+function experiment_plactice_covert(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let illusion = jsPsych.timelineVariable("illusion", true);
+
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.illusion = illusion
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 300
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=100&&illusion==1){
+        p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+        p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+    }
+    if(reactiontime<=100&&illusion==2){
+        p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+        p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+        p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+    }
+    if(reactiontime<=100&&illusion==3){
+        p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+        p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+        p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    if(reactiontime>100&&reactiontime<300){
+        if(illusion==1){
+            effect_size=60
+            p.line(0,-illusion_size/2,0,illusion_size/2)
+            p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+        }
+        if(illusion==2){
+            effect_size=-60
+            for(i=0;i<=line_number;i++){
+                p.line(-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2)
+            }
+        }
+        if(illusion==3){
+            effect_size=60
+            for(i=0;i<=line_number;i++){
+                p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+            }
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+const instruction_after_practice = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  'それでは本試行にうつります',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_experiment = {
+  timeline: [instruction_after_practice]
+}
+
+const instruction_lr = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  '次のブロックでは「○」または「×」が左右に表示されます'+
+  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  '準備ができましたら、本試行を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_experiment_lr = {
+  timeline: [instruction_lr]
+}
+
+const instruction_td = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus:
+  '次のブロックでは「○」または「×」が上下に表示されます'+
+  '図が表示される「○」または「×」の図が一致していない場合は「SPACE」キーで回答をスキップしてください<br>'+
+  '準備ができましたら、本試行を始めます。「次へ」を押してください。',
+  canvas_size: [Canvaswidth,
+    Canvasheight],
+  choices: ['次へ'],
+  data: {
+    task: 'instruction'
+  },
+};
+
+start_experiment_td = {
+  timeline: [instruction_td]
+}
+
+let p5_trial_experiment_plactice_covert = {
+  type: jsPsychP5,
+  sketch: experiment_plactice_covert,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'plactice_covert',
+  }
+}
+
+let plactice_factors_covert = {
+  illusion:[1,2,3]
+}
+
+let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors_covert,1)
+
+let trial_experiment_plactice_covert = {
+  timeline: [blanck,
+    p5_trial_experiment_plactice_covert,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_plactice,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+
+function experiment_covert_Helmholtz(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let pre_circle = jsPsych.timelineVariable("pre_circle", true);
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.pre_circle = pre_circle
+    trial.data.shape = shape
+
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=100&&pre_circle==1){
+        if(shape[1]==1){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+    }
+    if(reactiontime<=100&&pre_circle==2){
+        if(shape[1]==1){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    }
+    if(reactiontime>100&&reactiontime<400){
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+shape[0]/2)/2+(illusion_size+shape[0]/2)*i/line_number,illusion_size/2,-(illusion_size+shape[0]/2)/2+(illusion_size+shape[0]/2)*i/line_number)
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+
+let p5_trial_experiment_covert_Helmholtz = {
+  type: jsPsychP5,
+  sketch: experiment_covert_Helmholtz,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_covert_Helmholtz',
+  }
+}
+
+
+function experiment_covert_vertical_horizontal(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let pre_circle = jsPsych.timelineVariable("pre_circle", true);
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.pre_circle = pre_circle
+    trial.data.shape = shape
+
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=100&&pre_circle==1){
+        if(shape[1]==1){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+    }
+    if(reactiontime<=100&&pre_circle==2){
+        if(shape[1]==1){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==2){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+        if(shape[1]==3){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape[1]==4){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    }
+    if(reactiontime>100&&reactiontime<400){
+        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-shape[0]/2,illusion_size/2,illusion_size/2+shape[0]/2,illusion_size/2)
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+
+let p5_trial_experiment_covert_vertical_horizontal = {
+  type: jsPsychP5,
+  sketch: experiment_covert_vertical_horizontal,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_covert_vertical_horizontal',
+  }
+}
+
+
+function experiment_overt_Helmholtz_lr(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=300&&(shape>=1||shape<=4)){
+        if(shape==1){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape==2){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+        if(shape==3){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape==4){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    }
+    if(reactiontime<=300&&(shape<=0||shape==30)){
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+shape/2)/2+(illusion_size+shape/2)*i/line_number,illusion_size/2,-(illusion_size+shape/2)/2+(illusion_size+shape/2)*i/line_number)
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_overt_Helmholtz_lr = {
+  type: jsPsychP5,
+  sketch: experiment_overt_Helmholtz_lr,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_overt_Helmholtz_lr',
+  }
+}
+
+function experiment_overt_vertical_horizontal_lr(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=300&&(shape>=1||shape<=4)){
+        if(shape==1){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape==2){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+        if(shape==3){
+            p.line(-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2,-circle_size/2)
+            p.line(-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2,circle_size/2)
+            p.ellipse(illusion_size/2+circle_dis,0,circle_size,circle_size)
+        }
+        if(shape==4){
+            p.ellipse(-illusion_size/2-circle_dis,0,circle_size,circle_size)
+            p.line(illusion_size/2+circle_dis-circle_size/2,circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2)
+            p.line(illusion_size/2+circle_dis-circle_size/2,-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2)
+        }
+    }
+    if(reactiontime<=300&&(shape<=0||shape==30)){
+        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-shape[0]/2,illusion_size/2,illusion_size/2+shape[0]/2,illusion_size/2)
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_overt_vertical_horizontal_lr = {
+  type: jsPsychP5,
+  sketch: experiment_overt_vertical_horizontal_lr,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_overt_vertical_horizontal_lr',
+  }
+}
+
+function experiment_overt_Helmholtz_td(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("stimulus_list_overt", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=300&&(shape>=1||shape<=4)){
+        if(shape==1){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape==2){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+        if(shape==3){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape==4){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+    }
+    if(reactiontime<=300&&(shape<=0||shape==30)){
+        for(i=0;i<=line_number;i++){
+            p.line(-illusion_size/2,-(illusion_size+shape/2)/2+(illusion_size+shape/2)*i/line_number,illusion_size/2,-(illusion_size+shape/2)/2+(illusion_size+shape/2)*i/line_number)
+        }
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_overt_Helmholtz_td = {
+  type: jsPsychP5,
+  sketch: experiment_overt_Helmholtz_td,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_overt_Helmholtz_td',
+  }
+}
+
+function experiment_overt_vertical_horizontal_td(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    if(reactiontime<=300&&(shape>=1||shape<=4)){
+        if(shape==1){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape==2){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+        if(shape==3){
+            p.line(circle_size/2,-illusion_size/2-circle_dis-circle_size/2,-circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.line(-circle_size/2,-illusion_size/2-circle_dis-circle_size/2,circle_size/2,-illusion_size/2-circle_dis+circle_size/2)
+            p.ellipse(0,illusion_size/2+circle_dis,circle_size,circle_size)
+        }
+        if(shape==4){
+            p.ellipse(0,-illusion_size/2-circle_dis,circle_size,circle_size)
+            p.line(circle_size/2,illusion_size/2+circle_dis+circle_size/2,-circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+            p.line(-circle_size/2,illusion_size/2+circle_dis+circle_size/2,circle_size/2,illusion_size/2+circle_dis-circle_size/2)
+        }
+    }
+    if(reactiontime<=300&&(shape<=0||shape==30)){
+        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-shape[0]/2,illusion_size/2,illusion_size/2+shape[0]/2,illusion_size/2)
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+let p5_trial_experiment_overt_vertical_horizontal_td = {
+  type: jsPsychP5,
+  sketch: experiment_overt_vertical_horizontal_td,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_overt_vertical_horizontal_td',
+  }
+}
+
+function experiment_n_Helmholtz(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    for(i=0;i<=line_number;i++){
+        p.line(-illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number,illusion_size/2,-(illusion_size+effect_size)/2+(illusion_size+effect_size)*i/line_number)
+    }
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+
+let p5_trial_experiment_n_Helmholtz = {
+  type: jsPsychP5,
+  sketch: experiment_n_Helmholtz,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_n_Helmholtz',
+  }
+}
+
+function experiment_n_vertical_horizontal(p) {
+  // おまじない
+  let trial = jsPsych.getCurrentTrial();
+  // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
+  let shape = jsPsych.timelineVariable("shape", true);
+
+
+  p.setup = function () {
+    //刺激のデータ
+    trial.data.shape = shape
+    
+    p.createCanvas(Canvaswidth,Canvasheight);
+    illusion_size = 150
+    circle_size = 50
+    circle_dis = 50//先行研究を確認する
+    line_number = 10
+    nw0 = p.millis();
+    p.noCursor()
+  }
+
+  p.draw = function() {
+    p.background(255);
+    p.strokeWeight(2.5)
+    p.stroke(0)
+    p.noFill()
+    p.translate(p.width/2, p.height/2)
+    p.strokeCap(p.PROJECT)
+    reactiontime=p.millis()-nw0
+    p.line(0,-illusion_size/2,0,illusion_size/2)
+    p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
+  }
+
+
+  p.keyTyped = function() {
+    if (p.key === 'f') {
+      trial.data.result = 0
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === 'j') {
+      trial.data.result = 1
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+    if (p.key === ' ') {
+      trial.data.result = 2
+      trial.data.rt = reactiontime;
+      trial.end_trial();
+    };
+  };
+};
+
+
+let p5_trial_experiment_n_vertical_horizontal = {
+  type: jsPsychP5,
+  sketch: experiment_n_vertical_horizontal,
+  // このトライアル用のスケッチ（関数）を指定
+  data: {
+    task: 'trial_n_vertical_horizontal',
+  }
+}
+
+function createRandomPairs(arr1, arr2) {
+  // 1. 2つ目の配列のコピーを作り、ランダムにシャッフルする
+  const shuffledArr2 = [...arr2];
+  for (let i = shuffledArr2.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArr2[i], shuffledArr2[j]] = [shuffledArr2[j], shuffledArr2[i]];
+  }
+
+  // 2. 1つ目の配列を基準にして、シャッフルされた2つ目の配列とペアにする
+  return arr1.map((item, index) => {
+    return [item, shuffledArr2[index]];
+  });
+}
+
+function combineAndShuffle(arr1, arr2) {
+  // 1. スプレッド構文で2つの配列を結合し、新しい配列を作成
+  const combined = [...arr1, ...arr2];
+
+  // 2. フィッシャー–イェーツのシャッフルでランダムに並び替え
+  for (let i = combined.length - 1; i > 0; i--) {
+    // 0 から i の範囲でランダムな整数 j を生成
+    const j = Math.floor(Math.random() * (i + 1));
+    
+    // 要素 i と要素 j を入れ替える（分割代入を使用）
+    [combined[i], combined[j]] = [combined[j], combined[i]];
+  }
+
+  return combined;
+}
+
+function shuffleArray(array) {
+  const cloneArray = [...array];
+  for (let i = cloneArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloneArray[i], cloneArray[j]] = [cloneArray[j], cloneArray[i]];
+  }
+  return cloneArray;
+}
+
+let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,1,1,2,2,2,2,2]);
+let shape2 = [[0,3],[0,4]]
+let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30],[1,1,1,2,2,3,3,3,4,4]);
+let factors_n = createRandomPairs([0,0,0,0,0,0,0,0,30,-30]);
+
+
+let factors_covert_Helmholtz = {
+  shape:combineAndShuffle(shape1,[[0,3],[0,4]]),
+  pre_circle:[1,2]
+}
+
+let factors_covert_vertical_horizontal = {
+  shape:combineAndShuffle(shape1,[[0,3],[0,4]]),
+  pre_circle:[1,2]
+}
+
+const shape_o = shape3.map(subArray => {
+  return shuffleArray(subArray);
+});
+
+let factors_overt = shape_o.flat()
+
+
+
+let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz,1)
+let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal,1)
+let stimulus_list_overt = factors_overt.map(item => {
+  return { shape: item };
+});
+let stimulus_list_n = jsPsych.randomization.factorial(factors_n,2)
+
+let trial_experiment_covert_Helmholtz = {
+  timeline: [blanck,
+    p5_trial_experiment_covert_Helmholtz,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_covert_Helmholtz,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_covert_vertical_horizontal = {
+  timeline: [blanck,
+    p5_trial_experiment_covert_vertical_horizontal,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_covert_vertical_horizontal,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_Helmholtz_lr = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_Helmholtz_lr,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_vertical_horizontal_lr = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_vertical_horizontal_lr,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_Helmholtz_td = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_Helmholtz_td,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_overt_vertical_horizontal_td = {
+  timeline: [blanck,
+    p5_trial_experiment_overt_vertical_horizontal_td,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_overt,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_n_Helmholtz = {
+  timeline: [blanck,
+    p5_trial_experiment_n_Helmholtz,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_n,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+let trial_experiment_n_vertical_horizontal = {
+  timeline: [blanck,
+    p5_trial_experiment_n_vertical_horizontal,
+    blanck],
+  //刺激条件を代入
+  timeline_variables: stimulus_list_n,
+  repetitions: 1,
+  //繰り返しの数
+  //randomize_order: true,
+  //ランダム化するか否か
+};
+
+const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "Dhm8yFT1M1mW",
+    filename: filename,
+    data_string: ()=>jsPsych.data.get().csv()
+};
+
+
+//実験後のお礼
+var inst_closing = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<p>実験はすべて終了しました。ご協力ありがとうございました。</p>',
+  prompt: 'そのまま待機してください。5秒経過すると自動でウィンドウサイズがもとに戻ります。',
+  choices: "NO_KEYS",
+  data: {
+    task: 'instruction'
+  },
+  trial_duration: 5000,
+};
+
+jsPsych.run([
+  start_fullscreen,
+  //start_plactice_n,
+  //trial_experiment_plactice_n,
+  start_experiment,
+  trial_experiment_n_Helmholtz,
+  start_experiment,
+  trial_experiment_n_vertical_horizontal,
+  start_plactice_covert,
+  trial_experiment_plactice_covert,
+  start_experiment,
+  trial_experiment_covert_Helmholtz,
+  start_experiment,
+  trial_experiment_covert_vertical_horizontal,
+  start_experiment,
+  trial_experiment_overt_Helmholtz_lr,
+  start_experiment,
+  trial_experiment_overt_vertical_horizontal_lr,
+  start_experiment,
+  trial_experiment_overt_Helmholtz_td,
+  start_experiment,
+  trial_experiment_overt_vertical_horizontal_td,
+  //save_data,
+  inst_closing,
+  end_fullscreen])
+
+    </script>
+</html>
