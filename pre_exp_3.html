@@ -84,6 +84,7 @@ const instruction_before_practice = {
   stimulus:
   'モニターに図形が表示されます<br>'+
   '図形の縦の長さが横の長さより長いと感じた場合は「J」キーを<br>'+
+  '短いと感じた場合は「F」キーを押してください<br>'+
   '準備ができましたら、練習を始めます。「次へ」を押してください。',
   canvas_size: [Canvaswidth,
     Canvasheight],
@@ -148,11 +149,6 @@ function experiment_plactice(p) {
       trial.data.rt = reactiontime;
       trial.end_trial();
     };
-    if (p.key === ' ') {
-      trial.data.result = 2
-      trial.data.rt = reactiontime;
-      trial.end_trial();
-    };
   };
 };
 
@@ -204,7 +200,7 @@ start_plactice_covert = {
   timeline: [instruction_before_practice_covert]
 }
 
-function experiment_plactice_covert(p) {
+function experiment_plactice_covert_Helmholtz(p) {
   // おまじない
   let trial = jsPsych.getCurrentTrial();
   // これはタイムラインのデータを拾う（使い方はjsPsychのサイトを参照）。
@@ -358,12 +354,12 @@ start_experiment_td = {
   timeline: [instruction_td]
 }
 
-let p5_trial_experiment_plactice_covert = {
+let p5_trial_experiment_plactice_covert_Helmholtz = {
   type: jsPsychP5,
-  sketch: experiment_plactice_covert,
+  sketch: experiment_plactice_covert_Helmholtz,
   // このトライアル用のスケッチ（関数）を指定
   data: {
-    task: 'plactice_covert',
+    task: 'plactice_covert_Helmholtz',
   }
 }
 
@@ -374,14 +370,14 @@ let plactice_factors_covert = {
   pre_circle:[1,2]
 }
 
-let stimulus_plactice_covert_Helmholtz = jsPsych.randomization.factorial(plactice_factors_covert,1)
+let stimulus_plactice_covert = jsPsych.randomization.factorial(plactice_factors_covert,1)
 
-let trial_experiment_plactice_covert = {
+let trial_experiment_plactice_covert_Helmholtz = {
   timeline: [blanck,
     p5_trial_experiment_plactice_covert,
     blanck],
   //刺激条件を代入
-  timeline_variables: stimulus_plactice_covert_Helmholtz,
+  timeline_variables: stimulus_plactice_covert,
   repetitions: 1,
   //繰り返しの数
   //randomize_order: true,
@@ -672,23 +668,36 @@ function experiment_overt_Helmholtz_lr(p) {
   }
 
 
-  p.keyTyped = function() {
-    if (p.key === 'f') {
-      trial.data.result = 0
-      trial.data.rt = reactiontime;
-      trial.end_trial();
+    if (shape>=1||shape<=4){
+        p.keyTyped = function() {
+            if (p.key === 'f') {
+            trial.data.result = 0
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
+         if (p.key === 'j') {
+            trial.data.result = 1
+            trial.data.rt = reactiontime;
+            trial.end_trial();
+        };
     };
-    if (p.key === 'j') {
-      trial.data.result = 1
-      trial.data.rt = reactiontime;
-      trial.end_trial();
-    };
-    if (p.key === ' ') {
-      trial.data.result = 2
-      trial.data.rt = reactiontime;
-      trial.end_trial();
-    };
-  };
+    }
+    if (shape>=1||shape<=4){
+        p.mouseIspressed = function(){
+            if(p.mouseButton == LEFT){
+                trial.data.result = 0
+                trial.data.rt = reactiontime;
+                trial.end_trial();
+            }
+        }
+        p.mouseIspressed = function(){
+            if(p.mouseButton == RIGHT){
+                trial.data.result = 1
+                trial.data.rt = reactiontime;
+                trial.end_trial();
+            }
+        }
+    }
 };
 
 let p5_trial_experiment_overt_Helmholtz_lr = {
@@ -1287,8 +1296,9 @@ var inst_closing = {
 
 jsPsych.run([
   start_fullscreen,
-  start_plactice,
-  trial_experiment_plactice,
+  //start_plactice,
+  //trial_experiment_plactice,
+  trial_experiment_overt_Helmholtz_lr,
   ...experiments,
   //save_data,
   inst_closing,
