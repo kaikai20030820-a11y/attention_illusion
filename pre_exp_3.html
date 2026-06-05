@@ -993,11 +993,6 @@ function experiment_n_Helmholtz(p) {
       trial.data.rt = reactiontime;
       trial.end_trial();
     };
-    if (p.key === ' ') {
-      trial.data.result = 2
-      trial.data.rt = reactiontime;
-      trial.end_trial();
-    };
   };
 };
 
@@ -1061,11 +1056,6 @@ function experiment_n_vertical_horizontal(p) {
     };
     if (p.key === 'j') {
       trial.data.result = 1
-      trial.data.rt = reactiontime;
-      trial.end_trial();
-    };
-    if (p.key === ' ') {
-      trial.data.result = 2
       trial.data.rt = reactiontime;
       trial.end_trial();
     };
