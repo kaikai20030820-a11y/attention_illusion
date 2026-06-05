@@ -23,8 +23,8 @@
     const jsPsych = initJsPsych();
 
     // DataPipe 2
-    const subject_id = jsPsych.randomization.randomID(10);
-    const filename = `${subject_id}.csv`;
+    let subject_id = jsPsych.randomization.randomID(10);
+    let filename = `${subject_id}.csv`;
 
 let current_trial_index = 0;
 Canvaswidth = 1000;
@@ -60,6 +60,18 @@ var par_info = {
   },
   ],
   button_label: '次へ',
+
+  on_finish: function(data) {
+    // フォームに入力されたテキストデータを取得
+    let run_id = data.response.participantID;
+    
+    // 出力されるCSVのすべての行に「participantID」という列を追加し、入力内容を記録する
+    jsPsych.data.addProperties({
+      participantID: run_id
+    });
+
+    filename = `${run_id}.csv`;
+  }
 };
 
 
