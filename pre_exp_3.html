@@ -311,7 +311,8 @@ function experiment_covert_Helmholtz(p) {
   p.setup = function () {
     //刺激のデータ
     trial.data.pre_circle = pre_circle
-    trial.data.shape = shape
+    trial.data.effect_size = shape[0]
+    trial.data.shape_type = shape[1]
 
     
     p.createCanvas(Canvaswidth,Canvasheight);
@@ -433,7 +434,8 @@ function experiment_covert_vertical_horizontal(p) {
   p.setup = function () {
     //刺激のデータ
     trial.data.pre_circle = pre_circle
-    trial.data.shape = shape
+    trial.data.effect_size = shape[0]
+    trial.data.shape_type = shape[1]
 
     
     p.createCanvas(Canvaswidth,Canvasheight);
@@ -551,7 +553,13 @@ function experiment_overt_Helmholtz_lr(p) {
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    if (shape >= 1 && shape <= 4) {
+        trial.data.shape_type = shape;     // 1〜4なら図形の列へ
+        trial.data.effect_size = null;     // この試行は効果量なし
+    } else {
+        trial.data.shape_type = null;      // この試行は図形なし
+        trial.data.effect_size = shape;    // 30や0なら効果量の列へ
+    }
 
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
@@ -653,7 +661,13 @@ function experiment_overt_vertical_horizontal_lr(p) {
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    if (shape >= 1 && shape <= 4) {
+        trial.data.shape_type = shape;     // 1〜4なら図形の列へ
+        trial.data.effect_size = null;     // この試行は効果量なし
+    } else {
+        trial.data.shape_type = null;      // この試行は図形なし
+        trial.data.effect_size = shape;    // 30や0なら効果量の列へ
+    }
 
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
@@ -754,7 +768,13 @@ function experiment_overt_Helmholtz_td(p) {
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    if (shape >= 1 && shape <= 4) {
+        trial.data.shape_type = shape;     // 1〜4なら図形の列へ
+        trial.data.effect_size = null;     // この試行は効果量なし
+    } else {
+        trial.data.shape_type = null;      // この試行は図形なし
+        trial.data.effect_size = shape;    // 30や0なら効果量の列へ
+    }
 
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
@@ -856,7 +876,13 @@ function experiment_overt_vertical_horizontal_td(p) {
 
   p.setup = function () {
     //刺激のデータ
-    trial.data.shape = shape
+    if (shape >= 1 && shape <= 4) {
+        trial.data.shape_type = shape;     // 1〜4なら図形の列へ
+        trial.data.effect_size = null;     // この試行は効果量なし
+    } else {
+        trial.data.shape_type = null;      // この試行は図形なし
+        trial.data.effect_size = shape;    // 30や0なら効果量の列へ
+    }
 
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
