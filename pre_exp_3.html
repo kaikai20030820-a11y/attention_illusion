@@ -133,7 +133,7 @@ function experiment_plactice(p) {
     
     p.createCanvas(Canvaswidth,Canvasheight);
     illusion_size = 150
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -147,7 +147,7 @@ function experiment_plactice(p) {
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
     if(illusion==1){
-        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,-illusion_size/2,-illusion_size/2-effect_size/2,illusion_size/2)
         p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
     }
     if(illusion==2){
@@ -319,7 +319,7 @@ function experiment_covert_Helmholtz(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -442,7 +442,7 @@ function experiment_covert_vertical_horizontal(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -500,7 +500,7 @@ function experiment_covert_vertical_horizontal(p) {
         }
     }
     if(reactiontime>100&&reactiontime<400){
-        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,-illusion_size/2,-illusion_size/2-effect_size/2,illusion_size/2)
         p.line(-illusion_size/2-shape[0]/2,illusion_size/2,illusion_size/2+shape[0]/2,illusion_size/2)
     }
   }
@@ -565,7 +565,7 @@ function experiment_overt_Helmholtz_lr(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -673,7 +673,7 @@ function experiment_overt_vertical_horizontal_lr(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -709,7 +709,7 @@ function experiment_overt_vertical_horizontal_lr(p) {
         }
     }
     if(reactiontime<=300&&(shape<=0||shape==30)){
-        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,-illusion_size/2,-illusion_size/2-effect_size/2,illusion_size/2)
         p.line(-illusion_size/2-shape/2,illusion_size/2,illusion_size/2+shape/2,illusion_size/2)
     }
   }
@@ -780,7 +780,7 @@ function experiment_overt_Helmholtz_td(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -888,7 +888,7 @@ function experiment_overt_vertical_horizontal_td(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -924,7 +924,7 @@ function experiment_overt_vertical_horizontal_td(p) {
         }
     }
     if(reactiontime<=300&&(shape<=0||shape==30)){
-        p.line(0,-illusion_size/2,0,illusion_size/2)
+        p.line(-illusion_size/2-effect_size/2,-illusion_size/2,-illusion_size/2-effect_size/2,illusion_size/2)
         p.line(-illusion_size/2-shape/2,illusion_size/2,illusion_size/2+shape/2,illusion_size/2)
     }
   }
@@ -989,7 +989,7 @@ function experiment_n_Helmholtz(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -1056,7 +1056,7 @@ function experiment_n_vertical_horizontal(p) {
     illusion_size = 150
     circle_size = 50
     circle_dis = 50//先行研究を確認する
-    line_number = 10
+    line_number = 6
     nw0 = p.millis();
     p.noCursor()
   }
@@ -1069,7 +1069,7 @@ function experiment_n_vertical_horizontal(p) {
     p.translate(p.width/2, p.height/2)
     p.strokeCap(p.PROJECT)
     reactiontime=p.millis()-nw0
-    p.line(0,-illusion_size/2,0,illusion_size/2)
+    p.line(-illusion_size/2-effect_size/2,-illusion_size/2,-illusion_size/2-effect_size/2,illusion_size/2)
     p.line(-illusion_size/2-effect_size/2,illusion_size/2,illusion_size/2+effect_size/2,illusion_size/2)
   }
 
