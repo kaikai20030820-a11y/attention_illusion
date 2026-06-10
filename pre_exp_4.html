@@ -694,6 +694,14 @@
     let stimulus_list_covert_Helmholtz = jsPsych.randomization.factorial(factors_covert_Helmholtz, 1);
     let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal, 1);
     let stimulus_list_overt = factors_overt.map(item => ({ shape: item }));
+
+    // 【ここから追加】各ブロック用に制約付きシャッフルを実行し、新しい変数に格納する
+    let constrained_overt_Helmholtz_lr = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_vertical_horizontal_lr = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_Helmholtz_td = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_vertical_horizontal_td = shuffleWithConstraint(stimulus_list_overt);
+    // 【ここまで追加】
+
     let stimulus_list_n = jsPsych.randomization.factorial(factors_n, 2);
 
     let trial_plactice_covert_Helmholtz = { timeline: [blanck, p5_trial_plactice_covert_Helmholtz, blanck], timeline_variables: stimulus_plactice_covert, repetitions: 1 };
@@ -709,30 +717,32 @@
     let trial_experiment_covert_Helmholtz = { timeline: [blanck, p5_trial_experiment_covert_Helmholtz, blanck], timeline_variables: stimulus_list_covert_Helmholtz, repetitions: 1 };
     let trial_experiment_covert_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_covert_vertical_horizontal, blanck], timeline_variables: stimulus_list_covert_vertical_horizontal, repetitions: 1 };
     
-    let trial_experiment_overt_Helmholtz_lr = { 
-      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
-      timeline_variables: stimulus_list_overt, 
-      repetitions: 1, 
-      randomize_order: false 
-    };
-    let trial_experiment_overt_vertical_horizontal_lr = { 
-      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
-      timeline_variables: stimulus_list_overt, 
-      repetitions: 1, 
-      randomize_order: false 
-    };
-    let trial_experiment_overt_Helmholtz_td = { 
-      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
-      timeline_variables: stimulus_list_overt, 
-      repetitions: 1, 
-      randomize_order: false 
-    };
-    let trial_experiment_overt_vertical_horizontal_td = { 
-      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
-      timeline_variables: stimulus_list_overt, 
-      repetitions: 1, 
-      randomize_order: false 
-    };
+// 431行目付近〜： timeline_variables の部分を書き換えます
+
+let trial_experiment_overt_Helmholtz_lr = { 
+  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
+  timeline_variables: constrained_overt_Helmholtz_lr, // ←【修正】
+  repetitions: 1, 
+  randomize_order: false 
+};
+let trial_experiment_overt_vertical_horizontal_lr = { 
+  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
+  timeline_variables: constrained_overt_vertical_horizontal_lr, // ←【修正】
+  repetitions: 1, 
+  randomize_order: false 
+};
+let trial_experiment_overt_Helmholtz_td = { 
+  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
+  timeline_variables: constrained_overt_Helmholtz_td, // ←【修正】
+  repetitions: 1, 
+  randomize_order: false 
+};
+let trial_experiment_overt_vertical_horizontal_td = { 
+  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
+  timeline_variables: constrained_overt_vertical_horizontal_td, // ←【修正】
+  repetitions: 1, 
+  randomize_order: false 
+};
     
     let trial_experiment_n_Helmholtz = { timeline: [blanck, p5_trial_experiment_n_Helmholtz, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
     let trial_experiment_n_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_n_vertical_horizontal, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
