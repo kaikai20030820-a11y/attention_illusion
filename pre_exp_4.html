@@ -335,7 +335,7 @@
 
       p.keyPressed = function() {
         handleMainTaskKeys(p, trial, p.millis() - nw0, false);
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -363,7 +363,7 @@
 
       p.keyPressed = function() {
         handleMainTaskKeys(p, trial, p.millis() - nw0, true);
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -391,7 +391,7 @@
 
       p.keyPressed = function() {
         handleMainTaskKeys(p, trial, p.millis() - nw0, true);
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -439,7 +439,7 @@
         } else {
           handleMainTaskKeys(p, trial, reactiontime, false);
         }
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -476,7 +476,7 @@
         } else {
           handleMainTaskKeys(p, trial, reactiontime, false);
         }
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -513,7 +513,7 @@
         } else {
           handleMainTaskKeys(p, trial, reactiontime, false);
         }
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -550,7 +550,7 @@
         } else {
           handleMainTaskKeys(p, trial, reactiontime, false);
         }
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -572,7 +572,7 @@
 
       p.keyPressed = function() { 
         handleMainTaskKeys(p, trial, p.millis() - nw0, false); 
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -594,7 +594,7 @@
 
       p.keyPressed = function() { 
         handleMainTaskKeys(p, trial, p.millis() - nw0, false); 
-        return false; 
+        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -737,29 +737,29 @@
     
     // 【元に戻した箇所】timeline_variables に stimulus_list_overt を設定
     let trial_experiment_overt_Helmholtz_lr = { 
-  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
-  timeline_variables: constrained_overt_Helmholtz_lr, // ←変更
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_vertical_horizontal_lr = { 
-  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
-  timeline_variables: constrained_overt_vertical_horizontal_lr, // ←変更
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_Helmholtz_td = { 
-  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
-  timeline_variables: constrained_overt_Helmholtz_td, // ←変更
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_vertical_horizontal_td = { 
-  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
-  timeline_variables: constrained_overt_vertical_horizontal_td, // ←変更
-  repetitions: 1, 
-  randomize_order: false 
-};
+      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
+      timeline_variables: constrained_overt_Helmholtz_lr, // ←変更
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_vertical_horizontal_lr = { 
+      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
+      timeline_variables: constrained_overt_vertical_horizontal_lr, // ←変更
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_Helmholtz_td = { 
+      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
+      timeline_variables: constrained_overt_Helmholtz_td, // ←変更
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_vertical_horizontal_td = { 
+      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
+      timeline_variables: constrained_overt_vertical_horizontal_td, // ←変更
+      repetitions: 1, 
+      randomize_order: false 
+    };
     
     let trial_experiment_n_Helmholtz = { timeline: [blanck, p5_trial_experiment_n_Helmholtz, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
     let trial_experiment_n_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_n_vertical_horizontal, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
