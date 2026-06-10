@@ -26,13 +26,12 @@
     // 【一括設定オブジェクト】変数を変更したい場合はここを編集してください
     // =========================================================================
     const CONFIG = {
-      canvasWidth: 1000,         // キャンバスの幅
-      canvasHeight: 600,         // キャンバスの高さ
-      illusionSize: 150,         // 錯視の基本サイズ
-      circleSize: 50,            // 先行刺激の○・×のサイズ
-      circleDis: 50,             // 先行刺激の配置距離（錯視図形からの離れ具合）
-      lineNumber: 6,             // ヘルムホルツ錯視の線の本数
-      overtShapeTimeout: 1500    // Overt条件で「○・×一致（無反応）」時に次の試行へ進むまでの時間(ミリ秒)
+      canvasWidth: 1000,   // キャンバスの幅
+      canvasHeight: 600,   // キャンバスの高さ
+      illusionSize: 150,   // 錯視の基本サイズ
+      circleSize: 50,      // 先行刺激の○・×のサイズ
+      circleDis: 50,       // 先行刺激の配置距離（錯視図形からの離れ具合）
+      lineNumber: 6        // ヘルムホルツ錯視の線の本数
     };
 
     // DataPipe 2
@@ -45,6 +44,7 @@
     // 【共通描画ヘルパー関数】表示内容を共通管理
     // =========================================================================
     
+    // ヘルムホルツ錯視の描画ロジック
     function drawHelmholtz(p, effect_size) {
       const size = CONFIG.illusionSize;
       const lines = CONFIG.lineNumber;
@@ -58,12 +58,14 @@
       }
     }
 
+    // 垂直水平錯視の描画ロジック
     function drawVerticalHorizontal(p, effect_size) {
       const size = CONFIG.illusionSize;
-      p.line(-size / 2 - effect_size / 2, -size / 2, -size / 2 - effect_size / 2, size / 2);
+      p.line(0, -size / 2, 0, size / 2);
       p.line(-size / 2 - effect_size / 2, size / 2, size / 2 + effect_size / 2, size / 2);
     }
 
+    // 先行刺激（○・×）の描画ロジック
     function drawPreCircle(p, pre_circle, shape_type) {
       const size = CONFIG.illusionSize;
       const cSize = CONFIG.circleSize;
@@ -115,12 +117,14 @@
       }
     }
 
+    // 共通の描画初期設定（各ブロックの setup で呼び出し）
     function commonSetup(p, trial) {
       p.createCanvas(CONFIG.canvasWidth, CONFIG.canvasHeight);
       p.noCursor();
-      return p.millis(); 
+      return p.millis(); // トライアル開始時間を返す
     }
 
+    // 共通の描画スタイル設定（各ブロックの draw で呼び出し）
     function commonDrawStyle(p) {
       p.background(255);
       p.strokeWeight(2.5);
@@ -130,11 +134,9 @@
       p.strokeCap(p.PROJECT);
     }
 
-    // =========================================================================
-    // 【共通キー入力処理】
-    // =========================================================================
-    
-    // 錯視図形時のキー入力（← / ↑ / SPACE）
+
+
+// 錯視図形時のキー入力（← / ↑ / SPACE）
     function handleMainTaskKeys(p, trial, reactiontime, allowSpace = false) {
       if (p.keyCode === p.LEFT_ARROW) {
         trial.data.result = 0;
@@ -255,7 +257,7 @@
       stimulus:
       '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
       '<p>次のブロックでは、「○・×の図形」または「線分の図形」のどちらかが表示されます。</p>' +
-      '<p><strong>【１】「○・×」が表示された場合：</strong></p>' +
+      '<p><strong>【１】「○・×」が左右に表示された場合：</strong></p>' +
       '<ul>' +
       '<li>2つの図形が<strong>一致している</strong>場合 ➡ <strong>キーを押さずに待機（無反応）</strong></li>' +
       '<li>2つの図形が<strong>一致していない</strong>場合 ➡ <strong>「SPACE」キー</strong>を押す</li>' +
@@ -297,10 +299,10 @@
     var start_experiment_td = { timeline: [instruction_overt_td] };
 
     // =========================================================================
-    // 【実験各ブロックの定義】
+    // 【実験各ブロックの定義】ロジック共通化後
     // =========================================================================
     
-    // 最初の基本練習
+    // 最初の基本練習ブロック用スケッチ
     function experiment_plactice(p) {
       let trial = jsPsych.getCurrentTrial();
       let illusion = jsPsych.timelineVariable("illusion", true);
@@ -319,8 +321,8 @@
         if (illusion == 2) { drawHelmholtz(p, effect_size); }
       };
 
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, false);
+      p.keyTyped = function() {
+        handleStandardKeys(p, trial, p.millis() - nw0, false);
       };
     }
 
@@ -346,8 +348,8 @@
         if (reactiontime > 100 && reactiontime < 400) { drawHelmholtz(p, shape[0] / 2); }
       };
 
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, true);
+      p.keyTyped = function() {
+        handleStandardKeys(p, trial, p.millis() - nw0, true);
       };
     }
 
@@ -373,11 +375,12 @@
         if (reactiontime > 100 && reactiontime < 400) { drawVerticalHorizontal(p, shape[0]); }
       };
 
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, true);
+      p.keyTyped = function() {
+        handleStandardKeys(p, trial, p.millis() - nw0, true);
       };
     }
 
+    // Overt用のデータ保存共通ヘルパー
     function setupOvertData(trial, shape) {
       if (shape >= 1 && shape <= 4) {
         trial.data.shape_type = shape;
@@ -402,26 +405,12 @@
       p.draw = function() {
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) { // 図形（○・×）試行
-          if (reactiontime <= 300) { drawPreCircle(p, 2, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) { // 一致時の無反応タイムアウト処理
-            trial.data.result = 'no_response';
-            trial.data.rt = null;
-            trial.end_trial();
-          }
-        } else { // 錯視試行
-          if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawHelmholtz(p, shape / 2); }
-        }
+        if (reactiontime <= 300 && (shape >= 1 && shape <= 4)) { drawPreCircle(p, 2, shape); }
+        if (reactiontime <= 300 && (shape <= 0 || shape == 30)) { drawHelmholtz(p, shape / 2); }
       };
 
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-      };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
+      p.keyPressed = function() { handleArrowKeys(p, trial, p.millis() - nw0); };
     }
 
     // Overt 左右条件 (Vertical-Horizontal)
@@ -438,26 +427,12 @@
       p.draw = function() {
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 2, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) {
-            trial.data.result = 'no_response';
-            trial.data.rt = null;
-            trial.end_trial();
-          }
-        } else {
-          if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawVerticalHorizontal(p, shape); }
-        }
+        if (reactiontime <= 300 && (shape >= 1 && shape <= 4)) { drawPreCircle(p, 2, shape); }
+        if (reactiontime <= 300 && (shape <= 0 || shape == 30)) { drawVerticalHorizontal(p, shape); }
       };
 
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-      };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
+      p.keyPressed = function() { handleArrowKeys(p, trial, p.millis() - nw0); };
     }
 
     // Overt 上下条件 (Helmholtz)
@@ -474,26 +449,12 @@
       p.draw = function() {
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 1, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) {
-            trial.data.result = 'no_response';
-            trial.data.rt = null;
-            trial.end_trial();
-          }
-        } else {
-          if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawHelmholtz(p, shape / 2); }
-        }
+        if (reactiontime <= 300 && (shape >= 1 && shape <= 4)) { drawPreCircle(p, 1, shape); }
+        if (reactiontime <= 300 && (shape <= 0 || shape == 30)) { drawHelmholtz(p, shape / 2); }
       };
 
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-      };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
+      p.keyPressed = function() { handleArrowKeys(p, trial, p.millis() - nw0); };
     }
 
     // Overt 上下条件 (Vertical-Horizontal)
@@ -510,26 +471,12 @@
       p.draw = function() {
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 1, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) {
-            trial.data.result = 'no_response';
-            trial.data.rt = null;
-            trial.end_trial();
-          }
-        } else {
-          if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawVerticalHorizontal(p, shape); }
-        }
+        if (reactiontime <= 300 && (shape >= 1 && shape <= 4)) { drawPreCircle(p, 1, shape); }
+        if (reactiontime <= 300 && (shape <= 0 || shape == 30)) { drawVerticalHorizontal(p, shape); }
       };
 
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-      };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
+      p.keyPressed = function() { handleArrowKeys(p, trial, p.millis() - nw0); };
     }
 
     // 通常（N）条件 (Helmholtz)
@@ -548,7 +495,7 @@
         drawHelmholtz(p, effect_size);
       };
 
-      p.keyPressed = function() { handleMainTaskKeys(p, trial, p.millis() - nw0, false); };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
     }
 
     // 通常（N）条件 (Vertical-Horizontal)
@@ -567,7 +514,7 @@
         drawVerticalHorizontal(p, effect_size);
       };
 
-      p.keyPressed = function() { handleMainTaskKeys(p, trial, p.millis() - nw0, false); };
+      p.keyTyped = function() { handleStandardKeys(p, trial, p.millis() - nw0, false); };
     }
 
     // =========================================================================
@@ -591,7 +538,7 @@
     let p5_trial_experiment_n_vertical_horizontal = { type: jsPsychP5, sketch: experiment_n_vertical_horizontal, data: { task: 'trial_n_vertical_horizontal' } };
     let p5_trial_plactice_n_vertical_horizontal = { type: jsPsychP5, sketch: experiment_n_vertical_horizontal, data: { task: 'plactice_n_vertical_horizontal' } };
 
-    // 配列操作関数群
+    // 配列操作関数群（元のロジックを完全維持）
     function createRandomPairs(arr1, arr2) {
       const shuffledArr2 = [...arr2];
       for (let i = shuffledArr2.length - 1; i > 0; i--) {
@@ -600,6 +547,51 @@
       }
       return arr1.map((item, index) => [item, shuffledArr2[index]]);
     }
+
+    // 連続回数を制限してシャッフルする関数（最大2連続まで）
+function shuffleWithConstraint(stimulus_list) {
+  let isValid = false;
+  let shuffled_list = [];
+  let max_attempts = 2000; // 無限ループ防止用の最大試行回数
+  let attempts = 0;
+
+  while (!isValid && attempts < max_attempts) {
+    // 1. jsPsychの機能で一旦ランダムにシャッフル
+    shuffled_list = jsPsych.randomization.shuffle(stimulus_list);
+    isValid = true;
+    let consecutive_count = 1;
+
+    // 2. 配列の先頭から順番にチェック
+    for (let i = 1; i < shuffled_list.length; i++) {
+      let prev_shape = shuffled_list[i - 1].shape;
+      let curr_shape = shuffled_list[i].shape;
+
+      // 図形（○・×）の条件：1, 2, 3, 4
+      let prev_is_circle = (prev_shape >= 1 && prev_shape <= 4);
+      let curr_is_circle = (curr_shape >= 1 && curr_shape <= 4);
+
+      // 前の試行と同じ種類（図形同士、または錯視図形同士）かチェック
+      if (prev_is_circle === curr_is_circle) {
+        consecutive_count++;
+        // 【変更点】3回連続になったらNG判定とし、ループを抜けて最初からシャッフルし直す
+        if (consecutive_count > 2) {
+          isValid = false;
+          break; 
+        }
+      } else {
+        // 種類が変わったら連続カウントをリセット
+        consecutive_count = 1;
+      }
+    }
+    attempts++;
+  }
+
+  if (!isValid) {
+    console.warn("指定された制約を満たす配列が生成できませんでした。");
+  }
+
+  return shuffled_list;
+}
 
     function combineAndShuffle(arr1, arr2) {
       const combined = [...arr1, ...arr2];
@@ -628,7 +620,7 @@
       repetitions: 1,
     };
 
-    let shape_p = createRandomPairs([0,30,-30], [1,2,3,4]);
+    let shape_p = createRandomPairs([0,0,30,-30], [1,2,3,4]);
     let plactice_factors_covert = { shape: createRandomPairs([0,30,-30], [1,2,3]), pre_circle:[1,2] };
     const shape_plactice_overt = shape_p.map(subArray => shuffleArray(subArray));
     let factors_plactice_overt = shape_plactice_overt.flat();
@@ -652,19 +644,19 @@
 
     let trial_plactice_covert_Helmholtz = { timeline: [blanck, p5_trial_plactice_covert_Helmholtz, blanck], timeline_variables: stimulus_plactice_covert, repetitions: 1 };
     let trial_plactice_covert_vertical_horizontal = { timeline: [blanck, p5_trial_plactice_covert_vertical_horizontal, blanck], timeline_variables: stimulus_plactice_covert, repetitions: 1 };
-    let trial_plactice_overt_Helmholtz_lr = { timeline: [blanck, p5_trial_plactice_overt_Helmholtz_lr, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
-    let trial_plactice_overt_vertical_horizontal_lr = { timeline: [blanck, p5_trial_plactice_overt_vertical_horizontal_lr, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
-    let trial_plactice_overt_Helmholtz_td = { timeline: [blanck, p5_trial_plactice_overt_Helmholtz_td, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
-    let trial_plactice_overt_vertical_horizontal_td = { timeline: [blanck, p5_trial_plactice_overt_vertical_horizontal_td, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
+    let constrained_overt_Helmholtz_lr = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_vertical_horizontal_lr = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_Helmholtz_td = shuffleWithConstraint(stimulus_list_overt);
+    let constrained_overt_vertical_horizontal_td = shuffleWithConstraint(stimulus_list_overt);
     let trial_plactice_n_Helmholtz = { timeline: [blanck, p5_trial_plactice_n_Helmholtz, blanck], timeline_variables: stimulus_plactice, repetitions: 1 };
     let trial_plactice_n_vertical_horizontal = { timeline: [blanck, p5_trial_plactice_n_vertical_horizontal, blanck], timeline_variables: stimulus_plactice, repetitions: 1 };
 
     let trial_experiment_covert_Helmholtz = { timeline: [blanck, p5_trial_experiment_covert_Helmholtz, blanck], timeline_variables: stimulus_list_covert_Helmholtz, repetitions: 1 };
     let trial_experiment_covert_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_covert_vertical_horizontal, blanck], timeline_variables: stimulus_list_covert_vertical_horizontal, repetitions: 1 };
-    let trial_experiment_overt_Helmholtz_lr = { timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], timeline_variables: stimulus_list_overt, repetitions: 1 };
-    let trial_experiment_overt_vertical_horizontal_lr = { timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], timeline_variables: stimulus_list_overt, repetitions: 1 };
-    let trial_experiment_overt_Helmholtz_td = { timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], timeline_variables: stimulus_list_overt, repetitions: 1 };
-    let trial_experiment_overt_vertical_horizontal_td = { timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], timeline_variables: stimulus_list_overt, repetitions: 1 };
+    let trial_experiment_overt_Helmholtz_lr = { timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], timeline_variables: stimulus_list_overt, repetitions: 1, randomize_order: false};
+    let trial_experiment_overt_vertical_horizontal_lr = { timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], timeline_variables: stimulus_list_overt, repetitions: 1, randomize_order: false };
+    let trial_experiment_overt_Helmholtz_td = { timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], timeline_variables: stimulus_list_overt, repetitions: 1, randomize_order: false };
+    let trial_experiment_overt_vertical_horizontal_td = { timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], timeline_variables: stimulus_list_overt, repetitions: 1, randomize_order: false };
     let trial_experiment_n_Helmholtz = { timeline: [blanck, p5_trial_experiment_n_Helmholtz, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
     let trial_experiment_n_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_n_vertical_horizontal, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
 
