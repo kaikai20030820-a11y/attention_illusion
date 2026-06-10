@@ -61,8 +61,8 @@
     // 垂直水平錯視の描画ロジック
     function drawVerticalHorizontal(p, effect_size) {
       const size = CONFIG.illusionSize;
-      p.line(-size / 2 , -size / 2, -size / 2 , size / 2);
-      p.line(-size / 2 , size / 2, size / 2 , size / 2);
+      p.line(0, -size / 2, 0, size / 2);
+      p.line(-size / 2 - effect_size / 2, size / 2, size / 2 + effect_size / 2, size / 2);
     }
 
     // 先行刺激（○・×）の描画ロジック
