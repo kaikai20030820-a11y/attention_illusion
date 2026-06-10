@@ -2,3 +2,5 @@
 https://kaikai20030820-a11y.github.io/attention_illusion/pre_exp.html
 https://kaikai20030820-a11y.github.io/attention_illusion/pre_exp2.html
 https://kaikai20030820-a11y.github.io/attention_illusion/pre_exp_3.html
+https://kaikai20030820-a11y.github.io/attention_illusion/pre_exp_4.html
+https://kaikai20030820-a11y.github.io/attention_illusion/pre_exp_5.html
