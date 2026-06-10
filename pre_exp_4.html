@@ -140,7 +140,7 @@
         if (mode === 'overt_shape') {
           if (e.key === ' ' || e.code === 'Space') {
             e.preventDefault(); // スクロール等の標準動作をブロック
-            trial.data.result = 5;
+            trial.data.result = 'space';
             trial.data.rt = reactiontime;
             window.removeEventListener('keydown', keyHandler); // 監視を終了
             p.noLoop(); // p5の描画ループを安全に停止
@@ -168,7 +168,7 @@
         }
         else if (allowSpace && (e.key === ' ' || e.code === 'Space')) { // スペースキー
           e.preventDefault();
-          trial.data.result = 2;
+          trial.data.result = 'space';
           trial.data.rt = reactiontime;
           window.removeEventListener('keydown', keyHandler);
           p.noLoop();
