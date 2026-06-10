@@ -35,7 +35,6 @@
       overtShapeTimeout: 1500    // Overt条件で「○・×一致（無反応）」時に次の試行へ進むまでの時間(ミリ秒)
     };
 
-    // DataPipe 2
     let subject_id = jsPsych.randomization.randomID(10);
     let filename = `${subject_id}.csv`;
 
@@ -44,8 +43,6 @@
     // =========================================================================
     // 【共通描画ヘルパー関数】表示内容を共通管理
     // =========================================================================
-    
-    // ヘルムホルツ錯視の描画ロジック
     function drawHelmholtz(p, effect_size) {
       const size = CONFIG.illusionSize;
       const lines = CONFIG.lineNumber;
@@ -59,14 +56,12 @@
       }
     }
 
-    // 垂直水平錯視の描画ロジック（逆T字を反映）
     function drawVerticalHorizontal(p, effect_size) {
       const size = CONFIG.illusionSize;
       p.line(0, -size / 2, 0, size / 2);
       p.line(-size / 2 - effect_size / 2, size / 2, size / 2 + effect_size / 2, size / 2);
     }
 
-    // 先行刺激（○・×）の描画ロジック
     function drawPreCircle(p, pre_circle, shape_type) {
       const size = CONFIG.illusionSize;
       const cSize = CONFIG.circleSize;
@@ -121,17 +116,6 @@
     function commonSetup(p, trial) {
       let cnv = p.createCanvas(CONFIG.canvasWidth, CONFIG.canvasHeight);
       p.noCursor();
-      
-      if (document.activeElement) {
-        document.activeElement.blur();
-      }
-      window.focus();
-      
-      if (cnv && cnv.elt) {
-        cnv.elt.setAttribute('tabindex', '0');
-        cnv.elt.focus();
-      }
-      
       return p.millis(); 
     }
 
@@ -145,35 +129,60 @@
     }
 
     // =========================================================================
-    // 【共通キー入力処理】
+    // 【完全解決版】ネイティブ・ウィンドウキー監視システム
     // =========================================================================
-    
-    // 錯視図形時のキー入力（← / ↑ / SPACE）
-    function handleMainTaskKeys(p, trial, reactiontime, allowSpace = false) {
-      if (p.keyCode === p.LEFT_ARROW) {
-        trial.data.result = 0;
-        trial.data.rt = reactiontime;
-        trial.end_trial();
-      }
-      if (p.keyCode === p.UP_ARROW) {
-        trial.data.result = 1;
-        trial.data.rt = reactiontime;
-        trial.end_trial();
-      }
-      if (allowSpace && (p.key === ' ' || p.keyCode === 32)) {
-        trial.data.result = 2;
-        trial.data.rt = reactiontime;
-        trial.end_trial();
-      }
-    }
+    // フォーカスの抜け落ちを防ぐため、ブラウザ（ウィンドウ）全体でキーを監視します
+    function setupNativeKeyListener(trial, nw0, p, mode, allowSpace = false) {
+      let keyHandler = function(e) {
+        let reactiontime = p.millis() - nw0;
 
-    // Overt条件での「○・×図形」表示時のキー処理（SPACEによる不一致スキップのみ）
-    function handleOvertShapeKeys(p, trial, reactiontime) {
-      if (p.key === ' ' || p.keyCode === 32) {
-        trial.data.result = 5; // Mismatch時のスペースキー
-        trial.data.rt = reactiontime;
-        trial.end_trial();
-      }
+        // Overtの「○・×図形」表示時（SPACEによる不一致スキップのみ）
+        if (mode === 'overt_shape') {
+          if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault(); // スクロール等の標準動作をブロック
+            trial.data.result = 5;
+            trial.data.rt = reactiontime;
+            window.removeEventListener('keydown', keyHandler); // 監視を終了
+            p.noLoop(); // p5の描画ループを安全に停止
+            trial.end_trial();
+          }
+          return; // 矢印キーなどは無視
+        }
+
+        // 通常の錯視図形、または Covert条件
+        if (e.key === 'ArrowLeft' || e.key === 'Left') { // ←キー
+          e.preventDefault();
+          trial.data.result = 0;
+          trial.data.rt = reactiontime;
+          window.removeEventListener('keydown', keyHandler);
+          p.noLoop();
+          trial.end_trial();
+        }
+        else if (e.key === 'ArrowUp' || e.key === 'Up') { // ↑キー
+          e.preventDefault();
+          trial.data.result = 1;
+          trial.data.rt = reactiontime;
+          window.removeEventListener('keydown', keyHandler);
+          p.noLoop();
+          trial.end_trial();
+        }
+        else if (allowSpace && (e.key === ' ' || e.code === 'Space')) { // スペースキー
+          e.preventDefault();
+          trial.data.result = 2;
+          trial.data.rt = reactiontime;
+          window.removeEventListener('keydown', keyHandler);
+          p.noLoop();
+          trial.end_trial();
+        }
+      };
+
+      // ウィンドウ全体にキーイベントを登録（絶対に取りこぼさない）
+      window.addEventListener('keydown', keyHandler);
+
+      // タイムアウト等で時間切れ終了した際に手動でリスナーを消すための関数
+      trial.cleanupKeyHandler = function() {
+        window.removeEventListener('keydown', keyHandler);
+      };
     }
 
     // =========================================================================
@@ -311,10 +320,10 @@
     var start_experiment_td = { timeline: [instruction_overt_td] };
 
     // =========================================================================
-    // 【実験各ブロックの定義】ロジック共通化後
+    // 【実験各ブロックの定義】
     // =========================================================================
     
-    // 最初の基本練習ブロック用スケッチ
+    // 最初の基本練習
     function experiment_plactice(p) {
       let trial = jsPsych.getCurrentTrial();
       let illusion = jsPsych.timelineVariable("illusion", true);
@@ -325,17 +334,13 @@
         trial.data.illusion = illusion;
         trial.data.effect_size = effect_size;
         nw0 = commonSetup(p, trial);
+        setupNativeKeyListener(trial, nw0, p, 'normal', false); // ネイティブ監視を開始
       };
 
       p.draw = function() {
         commonDrawStyle(p);
         if (illusion == 1) { drawVerticalHorizontal(p, effect_size); }
         if (illusion == 2) { drawHelmholtz(p, effect_size); }
-      };
-
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, false);
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -351,6 +356,7 @@
         trial.data.effect_size = shape[0];
         trial.data.shape_type = shape[1];
         nw0 = commonSetup(p, trial);
+        setupNativeKeyListener(trial, nw0, p, 'normal', true); // SPACEキーも許可
       };
 
       p.draw = function() {
@@ -359,11 +365,6 @@
         if (reactiontime <= 100 && pre_circle == 1) { drawPreCircle(p, 1, shape[1]); }
         if (reactiontime <= 100 && pre_circle == 2) { drawPreCircle(p, 2, shape[1]); }
         if (reactiontime > 100 && reactiontime < 400) { drawHelmholtz(p, shape[0] / 2); }
-      };
-
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, true);
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -379,6 +380,7 @@
         trial.data.effect_size = shape[0];
         trial.data.shape_type = shape[1];
         nw0 = commonSetup(p, trial);
+        setupNativeKeyListener(trial, nw0, p, 'normal', true); // SPACEキーも許可
       };
 
       p.draw = function() {
@@ -388,14 +390,8 @@
         if (reactiontime <= 100 && pre_circle == 2) { drawPreCircle(p, 2, shape[1]); }
         if (reactiontime > 100 && reactiontime < 400) { drawVerticalHorizontal(p, shape[0]); }
       };
-
-      p.keyPressed = function() {
-        handleMainTaskKeys(p, trial, p.millis() - nw0, true);
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
-      };
     }
 
-    // Overt用のデータ保存共通ヘルパー
     function setupOvertData(trial, shape) {
       if (shape >= 1 && shape <= 4) {
         trial.data.shape_type = shape;
@@ -415,31 +411,29 @@
       p.setup = function () {
         setupOvertData(trial, shape);
         nw0 = commonSetup(p, trial);
+        
+        if (shape >= 1 && shape <= 4) {
+          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false); // SPACEのみ許可
+        } else {
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);      // 矢印のみ許可
+        }
       };
 
       p.draw = function() {
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) { // 図形（○・×）試行
+        if (shape >= 1 && shape <= 4) { 
           if (reactiontime <= 300) { drawPreCircle(p, 2, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) { // 一致時の無反応タイムアウト処理
+          if (reactiontime > CONFIG.overtShapeTimeout) { // タイムアウト処理
             trial.data.result = 'no_response';
             trial.data.rt = null;
+            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler(); // 監視を手動終了
+            p.noLoop();
             trial.end_trial();
           }
-        } else { // 錯視試行
+        } else { 
           if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawHelmholtz(p, shape / 2); }
         }
-      };
-
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -452,6 +446,12 @@
       p.setup = function () {
         setupOvertData(trial, shape);
         nw0 = commonSetup(p, trial);
+        
+        if (shape >= 1 && shape <= 4) {
+          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+        } else {
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
+        }
       };
 
       p.draw = function() {
@@ -462,21 +462,13 @@
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
+            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler();
+            p.noLoop();
             trial.end_trial();
           }
         } else {
           if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawVerticalHorizontal(p, shape); }
         }
-      };
-
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -489,6 +481,12 @@
       p.setup = function () {
         setupOvertData(trial, shape);
         nw0 = commonSetup(p, trial);
+        
+        if (shape >= 1 && shape <= 4) {
+          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+        } else {
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
+        }
       };
 
       p.draw = function() {
@@ -499,21 +497,13 @@
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
+            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler();
+            p.noLoop();
             trial.end_trial();
           }
         } else {
           if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawHelmholtz(p, shape / 2); }
         }
-      };
-
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -526,6 +516,12 @@
       p.setup = function () {
         setupOvertData(trial, shape);
         nw0 = commonSetup(p, trial);
+        
+        if (shape >= 1 && shape <= 4) {
+          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+        } else {
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
+        }
       };
 
       p.draw = function() {
@@ -536,21 +532,13 @@
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
+            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler();
+            p.noLoop();
             trial.end_trial();
           }
         } else {
           if (reactiontime <= 300 && (shape <= 0 || shape === 30)) { drawVerticalHorizontal(p, shape); }
         }
-      };
-
-      p.keyPressed = function() {
-        let reactiontime = p.millis() - nw0;
-        if (shape >= 1 && shape <= 4) {
-          handleOvertShapeKeys(p, trial, reactiontime);
-        } else {
-          handleMainTaskKeys(p, trial, reactiontime, false);
-        }
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -563,16 +551,12 @@
       p.setup = function () {
         trial.data.effect_size = effect_size;
         nw0 = commonSetup(p, trial);
+        setupNativeKeyListener(trial, nw0, p, 'normal', false);
       };
 
       p.draw = function() {
         commonDrawStyle(p);
         drawHelmholtz(p, effect_size);
-      };
-
-      p.keyPressed = function() { 
-        handleMainTaskKeys(p, trial, p.millis() - nw0, false); 
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -585,16 +569,12 @@
       p.setup = function () {
         trial.data.effect_size = effect_size;
         nw0 = commonSetup(p, trial);
+        setupNativeKeyListener(trial, nw0, p, 'normal', false);
       };
 
       p.draw = function() {
         commonDrawStyle(p);
         drawVerticalHorizontal(p, effect_size);
-      };
-
-      p.keyPressed = function() { 
-        handleMainTaskKeys(p, trial, p.millis() - nw0, false); 
-        return false; // ブラウザのデフォルト操作（スクロール等）を無効化
       };
     }
 
@@ -629,7 +609,6 @@
       return arr1.map((item, index) => [item, shuffledArr2[index]]);
     }
 
-    // 連続回数を制限してシャッフルする関数（最大2連続まで）
     function shuffleWithConstraint(stimulus_list) {
       let isValid = false;
       let shuffled_list = [];
@@ -724,39 +703,33 @@
     let trial_plactice_overt_Helmholtz_td = { timeline: [blanck, p5_trial_plactice_overt_Helmholtz_td, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
     let trial_plactice_overt_vertical_horizontal_td = { timeline: [blanck, p5_trial_plactice_overt_vertical_horizontal_td, blanck], timeline_variables: stimulus_plactice_overt, repetitions: 1 };
     
-    let constrained_overt_Helmholtz_lr = shuffleWithConstraint(stimulus_list_overt);
-    let constrained_overt_vertical_horizontal_lr = shuffleWithConstraint(stimulus_list_overt);
-    let constrained_overt_Helmholtz_td = shuffleWithConstraint(stimulus_list_overt);
-    let constrained_overt_vertical_horizontal_td = shuffleWithConstraint(stimulus_list_overt);
-    
     let trial_plactice_n_Helmholtz = { timeline: [blanck, p5_trial_plactice_n_Helmholtz, blanck], timeline_variables: stimulus_plactice, repetitions: 1 };
     let trial_plactice_n_vertical_horizontal = { timeline: [blanck, p5_trial_plactice_n_vertical_horizontal, blanck], timeline_variables: stimulus_plactice, repetitions: 1 };
 
     let trial_experiment_covert_Helmholtz = { timeline: [blanck, p5_trial_experiment_covert_Helmholtz, blanck], timeline_variables: stimulus_list_covert_Helmholtz, repetitions: 1 };
     let trial_experiment_covert_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_covert_vertical_horizontal, blanck], timeline_variables: stimulus_list_covert_vertical_horizontal, repetitions: 1 };
     
-    // 【元に戻した箇所】timeline_variables に stimulus_list_overt を設定
     let trial_experiment_overt_Helmholtz_lr = { 
       timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
-      timeline_variables: constrained_overt_Helmholtz_lr, // ←変更
+      timeline_variables: stimulus_list_overt, 
       repetitions: 1, 
       randomize_order: false 
     };
     let trial_experiment_overt_vertical_horizontal_lr = { 
       timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
-      timeline_variables: constrained_overt_vertical_horizontal_lr, // ←変更
+      timeline_variables: stimulus_list_overt, 
       repetitions: 1, 
       randomize_order: false 
     };
     let trial_experiment_overt_Helmholtz_td = { 
       timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
-      timeline_variables: constrained_overt_Helmholtz_td, // ←変更
+      timeline_variables: stimulus_list_overt, 
       repetitions: 1, 
       randomize_order: false 
     };
     let trial_experiment_overt_vertical_horizontal_td = { 
       timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
-      timeline_variables: constrained_overt_vertical_horizontal_td, // ←変更
+      timeline_variables: stimulus_list_overt, 
       repetitions: 1, 
       randomize_order: false 
     };
