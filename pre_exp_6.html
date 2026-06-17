@@ -34,7 +34,7 @@
       circleSize: 50,            // 先行刺激の○・×のサイズ
       circleDis: 50,             // 先行刺激の配置距離（錯視図形からの離れ具合）
       lineNumber: 6,             // ヘルムホルツ錯視の線の本数
-      overtShapeTimeout: 1500    // Overt条件で「○・×一致（無反応）」時に次の試行へ進むまでの時間(ミリ秒)
+      overtShapeTimeout: 1500    // Overt条件で大小課題時に次の試行へ進むまでの時間(ミリ秒)
     };
 
     let subject_id = jsPsych.randomization.randomID(10);
@@ -45,13 +45,10 @@
     // =========================================================================
     // 【共通描画ヘルパー関数】表示内容を共通管理
     // =========================================================================
-    // === 追加：個人の錯視量（PSE）を保存する変数 ===
     let PSE_Helmholtz = 0;
     let PSE_VerticalHorizontal = 0;
 
-    // === 修正：【共通描画ヘルパー関数】にPSEを組み込む ===
     function drawHelmholtz(p, effect_size) {
-      // 基準のeffect_sizeに個人のPSEを加算して描画する
       let final_effect = effect_size + PSE_Helmholtz; 
       
       const size = CONFIG.illusionSize;
@@ -67,7 +64,6 @@
     }
 
     function drawVerticalHorizontal(p, effect_size) {
-      // 基準のeffect_sizeに個人のPSEを加算して描画する
       let final_effect = effect_size + PSE_VerticalHorizontal; 
       
       const size = CONFIG.illusionSize;
@@ -75,6 +71,7 @@
       p.line(-size / 2 - final_effect / 2, size / 2, size / 2 + final_effect / 2, size / 2);
     }
 
+    // Covert用（常に同じ大きさの○を描画）
     function drawPreCircle(p, pre_circle, shape_type) {
       const size = CONFIG.illusionSize;
       const cSize = CONFIG.circleSize;
@@ -85,44 +82,41 @@
           p.ellipse(0, -size / 2 - cDis, cSize, cSize);
           p.ellipse(0, size / 2 + cDis, cSize, cSize);
         }
-        if (shape_type === 2) {
-          p.line(cSize / 2, -size / 2 - cDis - cSize / 2, -cSize / 2, -size / 2 - cDis + cSize / 2);
-          p.line(-cSize / 2, -size / 2 - cDis - cSize / 2, cSize / 2, -size / 2 - cDis + cSize / 2);
-          p.line(cSize / 2, size / 2 + cDis + cSize / 2, -cSize / 2, size / 2 + cDis - cSize / 2);
-          p.line(-cSize / 2, size / 2 + cDis + cSize / 2, cSize / 2, size / 2 + cDis - cSize / 2);
-        }
-        if (shape_type === 3) {
-          p.line(cSize / 2, -size / 2 - cDis - cSize / 2, -cSize / 2, -size / 2 - cDis + cSize / 2);
-          p.line(-cSize / 2, -size / 2 - cDis - cSize / 2, cSize / 2, -size / 2 - cDis + cSize / 2);
-          p.ellipse(0, size / 2 + cDis, cSize, cSize);
-        }
-        if (shape_type === 4) {
-          p.ellipse(0, -size / 2 - cDis, cSize, cSize);
-          p.line(cSize / 2, size / 2 + cDis + cSize / 2, -cSize / 2, size / 2 + cDis - cSize / 2);
-          p.line(-cSize / 2, size / 2 + cDis + cSize / 2, cSize / 2, size / 2 + cDis - cSize / 2);
-        }
       }
       if (pre_circle === 2) { // 左右配置
         if (shape_type === 1) {
           p.ellipse(-size / 2 - cDis, 0, cSize, cSize);
           p.ellipse(size / 2 + cDis, 0, cSize, cSize);
         }
-        if (shape_type === 2) {
-          p.line(-size / 2 - cDis - cSize / 2, cSize / 2, -size / 2 - cDis + cSize / 2, -cSize / 2);
-          p.line(-size / 2 - cDis - cSize / 2, -cSize / 2, -size / 2 - cDis + cSize / 2, cSize / 2);
-          p.line(size / 2 + cDis - cSize / 2, cSize / 2, size / 2 + cDis + cSize / 2, -cSize / 2);
-          p.line(size / 2 + cDis - cSize / 2, -cSize / 2, size / 2 + cDis + cSize / 2, cSize / 2);
-        }
-        if (shape_type === 3) {
-          p.line(-size / 2 - cDis - cSize / 2, cSize / 2, -size / 2 - cDis + cSize / 2, -cSize / 2);
-          p.line(-size / 2 - cDis - cSize / 2, -cSize / 2, -size / 2 - cDis + cSize / 2, cSize / 2);
-          p.ellipse(size / 2 + cDis, 0, cSize, cSize);
-        }
-        if (shape_type === 4) {
-          p.ellipse(-size / 2 - cDis, 0, cSize, cSize);
-          p.line(size / 2 + cDis - cSize / 2, cSize / 2, size / 2 + cDis + cSize / 2, -cSize / 2);
-          p.line(size / 2 + cDis - cSize / 2, -cSize / 2, size / 2 + cDis + cSize / 2, cSize / 2);
-        }
+      }
+    }
+
+    // ★追加：Overt用の大小円描画関数
+    function drawOvertCircles(p, orientation, shape_type) {
+      const size = CONFIG.illusionSize;
+      const cSize = CONFIG.circleSize;
+      const cDis = CONFIG.circleDis;
+
+      // 大小のサイズ比率を設定（大：1.25倍、小：0.75倍）
+      const sizeLarge = cSize * 1.25;
+      const sizeSmall = cSize * 0.75;
+
+      let size1, size2;
+      // 1,3 の時は1つ目(左/上)が大きく、2,4 の時は2つ目(右/下)が大きい
+      if (shape_type === 1 || shape_type === 3) {
+        size1 = sizeLarge;
+        size2 = sizeSmall;
+      } else {
+        size1 = sizeSmall;
+        size2 = sizeLarge;
+      }
+
+      if (orientation === 1) { // 上下配置
+        p.ellipse(0, -size / 2 - cDis, size1, size1); // 上
+        p.ellipse(0, size / 2 + cDis, size2, size2);  // 下
+      } else if (orientation === 2) { // 左右配置
+        p.ellipse(-size / 2 - cDis, 0, size1, size1); // 左
+        p.ellipse(size / 2 + cDis, 0, size2, size2);  // 右
       }
     }
 
@@ -144,22 +138,34 @@
     // =========================================================================
     // 【完全解決版】ネイティブ・ウィンドウキー監視システム
     // =========================================================================
-    // フォーカスの抜け落ちを防ぐため、ブラウザ（ウィンドウ）全体でキーを監視します
     function setupNativeKeyListener(trial, nw0, p, mode, allowSpace = false) {
       let keyHandler = function(e) {
         let reactiontime = p.millis() - nw0;
 
-        // Overtの「○・×図形」表示時（SPACEによる不一致スキップのみ）
-        if (mode === 'overt_shape') {
-          if (e.key === ' ' || e.code === 'Space') {
-            e.preventDefault(); // スクロール等の標準動作をブロック
-            trial.data.result = 'space';
+        // ★修正：Overt 左右配置ブロックでの大小判断（左右矢印キーのみ受け付け）
+        if (mode === 'overt_lr') {
+          if (e.key === 'ArrowLeft' || e.key === 'Left' || e.key === 'ArrowRight' || e.key === 'Right') {
+            e.preventDefault();
+            trial.data.result = (e.key === 'ArrowLeft' || e.key === 'Left') ? 'left' : 'right';
             trial.data.rt = reactiontime;
-            window.removeEventListener('keydown', keyHandler); // 監視を終了
-            p.noLoop(); // p5の描画ループを安全に停止
+            window.removeEventListener('keydown', keyHandler);
+            p.noLoop();
             trial.end_trial();
           }
-          return; // 矢印キーなどは無視
+          return;
+        }
+
+        // ★修正：Overt 上下配置ブロックでの大小判断（上下矢印キーのみ受け付け）
+        if (mode === 'overt_td') {
+          if (e.key === 'ArrowUp' || e.key === 'Up' || e.key === 'ArrowDown' || e.key === 'Down') {
+            e.preventDefault();
+            trial.data.result = (e.key === 'ArrowUp' || e.key === 'Up') ? 'up' : 'down';
+            trial.data.rt = reactiontime;
+            window.removeEventListener('keydown', keyHandler);
+            p.noLoop();
+            trial.end_trial();
+          }
+          return;
         }
 
         // 通常の錯視図形、または Covert条件
@@ -189,10 +195,8 @@
         }
       };
 
-      // ウィンドウ全体にキーイベントを登録（絶対に取りこぼさない）
       window.addEventListener('keydown', keyHandler);
 
-      // タイムアウト等で時間切れ終了した際に手動でリスナーを消すための関数
       trial.cleanupKeyHandler = function() {
         window.removeEventListener('keydown', keyHandler);
       };
@@ -236,7 +240,6 @@
       trial_duration: 500,
     };
 
-    // === 追加：調整法の教示とブロック設定 ===
     const instruction_adjustment = {
       type: jsPsychHtmlButtonResponse,
       stimulus:
@@ -254,7 +257,6 @@
 
     let p5_trial_adjustment = { type: jsPsychP5, sketch: experiment_adjustment, data: { task: 'adjustment' } };
 
-    // 錯視1(VH)と錯視2(Helmholtz)で、最初から縦が長い(+30)・短い(-30)状態から始める計4試行
     let adjustment_factors = [
       { illusion: 1, initial_diff: 30 },
       { illusion: 1, initial_diff: -30 },
@@ -264,25 +266,20 @@
 
     let trial_adjustment_block = {
       timeline: [blanck, p5_trial_adjustment, blanck],
-      timeline_variables: jsPsych.randomization.shuffle(adjustment_factors), // 4試行をランダム順で提示
+      timeline_variables: jsPsych.randomization.shuffle(adjustment_factors),
       repetitions: 1
     };
 
-    // 4試行のデータから平均(PSE)を計算し、グローバル変数に代入する処理
     let calculate_pse = {
       type: jsPsychCallFunction,
       func: function() {
-        // 調整法のデータを取得
         let adj_data = jsPsych.data.get().filter({task: 'adjustment'}).values();
-        
         let vh_vals = adj_data.filter(d => d.illusion === 1).map(d => d.adjusted_diff);
         let helm_vals = adj_data.filter(d => d.illusion === 2).map(d => d.adjusted_diff);
 
-        // 平均値を計算
         PSE_VerticalHorizontal = vh_vals.reduce((a, b) => a + b, 0) / vh_vals.length;
         PSE_Helmholtz = helm_vals.reduce((a, b) => a + b, 0) / helm_vals.length;
 
-        // 全てのCSVデータに保存されるようPropertiesに追加
         jsPsych.data.addProperties({
           PSE_VH: PSE_VerticalHorizontal,
           PSE_Helmholtz: PSE_Helmholtz
@@ -335,15 +332,16 @@
 
     var start_experiment = { timeline: [instruction_after_practice] };
 
+    // ★修正：Overt 左右配置の教示文を矢印キー回答用に変更
     const instruction_overt_lr = {
       type: jsPsychHtmlButtonResponse,
       stimulus:
       '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
-      '<p>次のブロックでは、「○・×の図形」または「線分の図形」のどちらかが表示されます。</p>' +
-      '<p><strong>【１】「○・×」が左右に表示された場合：</strong></p>' +
+      '<p>次のブロックでは、「大小の異なる2つの円」または「線分の図形」のどちらかが表示されます。</p>' +
+      '<p><strong>【１】「2つの円」が左右に表示された場合：</strong></p>' +
       '<ul>' +
-      '<li>2つの図形が<strong>一致している</strong>場合 ➡ <strong>キーを押さずに待機（無反応）</strong></li>' +
-      '<li>2つの図形が<strong>一致していない</strong>場合 ➡ <strong>「SPACE」キー</strong>を押す</li>' +
+      '<li><strong>左の円が大きい</strong>と感じた場合 ➡ <strong>「←」（左矢印）キー</strong></li>' +
+      '<li><strong>右の円が大きい</strong>と感じた場合 ➡ <strong>「→」（右矢印）キー</strong></li>' +
       '</ul>' +
       '<p><strong>【２】「線分の図形」が表示された場合：</strong></p>' +
       '<ul>' +
@@ -358,15 +356,16 @@
 
     var start_experiment_lr = { timeline: [instruction_overt_lr] };
 
+    // ★修正：Overt 上下配置の教示文を矢印キー回答用に変更
     const instruction_overt_td = {
       type: jsPsychHtmlButtonResponse,
       stimulus:
       '<div style="text-align:left; line-height:1.8; font-size:18px;">' +
-      '<p>次のブロックでは、「○・×の図形」または「線分の図形」のどちらかが表示されます。</p>' +
-      '<p><strong>【１】「○・×」が上下に表示された場合：</strong></p>' +
+      '<p>次のブロックでは、「大小の異なる2つの円」または「線分の図形」のどちらかが表示されます。</p>' +
+      '<p><strong>【１】「2つの円」が上下に表示された場合：</strong></p>' +
       '<ul>' +
-      '<li>2つの図形が<strong>一致している</strong>場合 ➡ <strong>キーを押さずに待機（無反応）</strong></li>' +
-      '<li>2つの図形が<strong>一致していない</strong>場合 ➡ <strong>「SPACE」キー</strong>を押す</li>' +
+      '<li><strong>上の円が大きい</strong>と感じた場合 ➡ <strong>「↑」（上矢印）キー</strong></li>' +
+      '<li><strong>下の円が大きい</strong>と感じた場合 ➡ <strong>「↓」（下矢印）キー</strong></li>' +
       '</ul>' +
       '<p><strong>【２】「線分の図形」が表示された場合：</strong></p>' +
       '<ul>' +
@@ -384,12 +383,10 @@
     // =========================================================================
     // 【実験各ブロックの定義】
     // =========================================================================
-    
-    // === 追加：調整法（Method of Adjustment）用のスケッチ ===
     function experiment_adjustment(p) {
       let trial = jsPsych.getCurrentTrial();
       let illusion = jsPsych.timelineVariable("illusion", true);
-      let initial_diff = jsPsych.timelineVariable("initial_diff", true); // 初期状態のズレ
+      let initial_diff = jsPsych.timelineVariable("initial_diff", true);
       let current_diff = initial_diff;
       let nw0;
 
@@ -397,10 +394,9 @@
         trial.data.illusion = illusion;
         nw0 = commonSetup(p, trial);
 
-        // ↑↓キーで長さを調整、SPACEで決定
         let keyHandler = function(e) {
           if (e.key === 'ArrowUp' || e.key === 'Up') {
-            current_diff += 2; // 1回の入力で2px変化（感度調整可能）
+            current_diff += 2;
             e.preventDefault();
           } else if (e.key === 'ArrowDown' || e.key === 'Down') {
             current_diff -= 2;
@@ -408,7 +404,7 @@
           } else if (e.key === ' ' || e.code === 'Space') {
             e.preventDefault();
             trial.data.result = 'adjusted';
-            trial.data.adjusted_diff = current_diff; // 決定した長さを保存
+            trial.data.adjusted_diff = current_diff;
             trial.data.rt = p.millis() - nw0;
             window.removeEventListener('keydown', keyHandler);
             p.noLoop();
@@ -423,8 +419,6 @@
 
       p.draw = function() {
         commonDrawStyle(p);
-        
-        // 画面上部に教示を表示
         p.push();
         p.fill(0);
         p.noStroke();
@@ -438,8 +432,6 @@
       };
     }
 
-
-    // 最初の基本練習
     function experiment_plactice(p) {
       let trial = jsPsych.getCurrentTrial();
       let illusion = jsPsych.timelineVariable("illusion", true);
@@ -450,7 +442,7 @@
         trial.data.illusion = illusion;
         trial.data.effect_size = effect_size;
         nw0 = commonSetup(p, trial);
-        setupNativeKeyListener(trial, nw0, p, 'normal', false); // ネイティブ監視を開始
+        setupNativeKeyListener(trial, nw0, p, 'normal', false);
       };
 
       p.draw = function() {
@@ -460,7 +452,6 @@
       };
     }
 
-    // Covert 条件 (Helmholtz)
     function experiment_covert_Helmholtz(p) {
       let trial = jsPsych.getCurrentTrial();
       let pre_circle = jsPsych.timelineVariable("pre_circle", true);
@@ -472,7 +463,7 @@
         trial.data.effect_size = shape[0];
         trial.data.shape_type = shape[1];
         nw0 = commonSetup(p, trial);
-        setupNativeKeyListener(trial, nw0, p, 'normal', true); // SPACEキーも許可
+        setupNativeKeyListener(trial, nw0, p, 'normal', false); // 前回修正：SPACE無効化
       };
 
       p.draw = function() {
@@ -484,7 +475,6 @@
       };
     }
 
-    // Covert 条件 (Vertical-Horizontal)
     function experiment_covert_vertical_horizontal(p) {
       let trial = jsPsych.getCurrentTrial();
       let pre_circle = jsPsych.timelineVariable("pre_circle", true);
@@ -496,7 +486,7 @@
         trial.data.effect_size = shape[0];
         trial.data.shape_type = shape[1];
         nw0 = commonSetup(p, trial);
-        setupNativeKeyListener(trial, nw0, p, 'normal', true); // SPACEキーも許可
+        setupNativeKeyListener(trial, nw0, p, 'normal', false); // 前回修正：SPACE無効化
       };
 
       p.draw = function() {
@@ -518,7 +508,7 @@
       }
     }
 
-    // Overt 左右条件 (Helmholtz)
+    // ★修正：Overt 左右条件 (Helmholtz) を大小判定課題＋矢印キー対応に変更
     function experiment_overt_Helmholtz_lr(p) {
       let trial = jsPsych.getCurrentTrial();
       let shape = jsPsych.timelineVariable("shape", true);
@@ -529,9 +519,9 @@
         nw0 = commonSetup(p, trial);
         
         if (shape >= 1 && shape <= 4) {
-          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false); // SPACEのみ許可
+          setupNativeKeyListener(trial, nw0, p, 'overt_lr', false); // 'overt_lr' モードで開始
         } else {
-          setupNativeKeyListener(trial, nw0, p, 'normal', false);      // 矢印のみ許可
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
         }
       };
 
@@ -539,11 +529,11 @@
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
         if (shape >= 1 && shape <= 4) { 
-          if (reactiontime <= 300) { drawPreCircle(p, 2, shape); }
-          if (reactiontime > CONFIG.overtShapeTimeout) { // タイムアウト処理
+          if (reactiontime <= 300) { drawOvertCircles(p, 2, shape); } // drawOvertCirclesに変更
+          if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
-            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler(); // 監視を手動終了
+            if(trial.cleanupKeyHandler) trial.cleanupKeyHandler();
             p.noLoop();
             trial.end_trial();
           }
@@ -553,7 +543,7 @@
       };
     }
 
-    // Overt 左右条件 (Vertical-Horizontal)
+    // ★修正：Overt 左右条件 (Vertical-Horizontal) を大小判定課題＋矢印キー対応に変更
     function experiment_overt_vertical_horizontal_lr(p) {
       let trial = jsPsych.getCurrentTrial();
       let shape = jsPsych.timelineVariable("shape", true);
@@ -564,7 +554,7 @@
         nw0 = commonSetup(p, trial);
         
         if (shape >= 1 && shape <= 4) {
-          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+          setupNativeKeyListener(trial, nw0, p, 'overt_lr', false); // 'overt_lr' モードで開始
         } else {
           setupNativeKeyListener(trial, nw0, p, 'normal', false);
         }
@@ -574,7 +564,7 @@
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
         if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 2, shape); }
+          if (reactiontime <= 300) { drawOvertCircles(p, 2, shape); } // drawOvertCirclesに変更
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
@@ -588,7 +578,7 @@
       };
     }
 
-    // Overt 上下条件 (Helmholtz)
+    // ★修正：Overt 上下条件 (Helmholtz) を大小判定課題＋矢印キー対応に変更
     function experiment_overt_Helmholtz_td(p) {
       let trial = jsPsych.getCurrentTrial();
       let shape = jsPsych.timelineVariable("shape", true);
@@ -599,7 +589,7 @@
         nw0 = commonSetup(p, trial);
         
         if (shape >= 1 && shape <= 4) {
-          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+          setupNativeKeyListener(trial, nw0, p, 'overt_td', false); // 'overt_td' モードで開始
         } else {
           setupNativeKeyListener(trial, nw0, p, 'normal', false);
         }
@@ -609,7 +599,7 @@
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
         if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 1, shape); }
+          if (reactiontime <= 300) { drawOvertCircles(p, 1, shape); } // drawOvertCirclesに変更
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
@@ -623,7 +613,7 @@
       };
     }
 
-    // Overt 上下条件 (Vertical-Horizontal)
+    // ★修正：Overt 上下条件 (Vertical-Horizontal) を大小判定課題＋矢印キー対応に変更
     function experiment_overt_vertical_horizontal_td(p) {
       let trial = jsPsych.getCurrentTrial();
       let shape = jsPsych.timelineVariable("shape", true);
@@ -634,7 +624,7 @@
         nw0 = commonSetup(p, trial);
         
         if (shape >= 1 && shape <= 4) {
-          setupNativeKeyListener(trial, nw0, p, 'overt_shape', false);
+          setupNativeKeyListener(trial, nw0, p, 'overt_td', false); // 'overt_td' モードで開始
         } else {
           setupNativeKeyListener(trial, nw0, p, 'normal', false);
         }
@@ -644,7 +634,7 @@
         commonDrawStyle(p);
         let reactiontime = p.millis() - nw0;
         if (shape >= 1 && shape <= 4) {
-          if (reactiontime <= 300) { drawPreCircle(p, 1, shape); }
+          if (reactiontime <= 300) { drawOvertCircles(p, 1, shape); } // drawOvertCirclesに変更
           if (reactiontime > CONFIG.overtShapeTimeout) {
             trial.data.result = 'no_response';
             trial.data.rt = null;
@@ -658,7 +648,6 @@
       };
     }
 
-    // 通常（N）条件 (Helmholtz)
     function experiment_n_Helmholtz(p) {
       let trial = jsPsych.getCurrentTrial();
       let effect_size = jsPsych.timelineVariable("effect_size", true);
@@ -676,7 +665,6 @@
       };
     }
 
-    // 通常（N）条件 (Vertical-Horizontal)
     function experiment_n_vertical_horizontal(p) {
       let trial = jsPsych.getCurrentTrial();
       let effect_size = jsPsych.timelineVariable("effect_size", true);
@@ -715,7 +703,6 @@
     let p5_trial_experiment_n_vertical_horizontal = { type: jsPsychP5, sketch: experiment_n_vertical_horizontal, data: { task: 'trial_n_vertical_horizontal' } };
     let p5_trial_plactice_n_vertical_horizontal = { type: jsPsychP5, sketch: experiment_n_vertical_horizontal, data: { task: 'plactice_n_vertical_horizontal' } };
 
-    // 配列操作関数群
     function createRandomPairs(arr1, arr2) {
       const shuffledArr2 = [...arr2];
       for (let i = shuffledArr2.length - 1; i > 0; i--) {
@@ -811,12 +798,10 @@
     let stimulus_list_covert_vertical_horizontal = jsPsych.randomization.factorial(factors_covert_vertical_horizontal, 1);
     let stimulus_list_overt = factors_overt.map(item => ({ shape: item }));
 
-    // 【ここから追加】各ブロック用に制約付きシャッフルを実行し、新しい変数に格納する
     let constrained_overt_Helmholtz_lr = shuffleWithConstraint(stimulus_list_overt);
     let constrained_overt_vertical_horizontal_lr = shuffleWithConstraint(stimulus_list_overt);
     let constrained_overt_Helmholtz_td = shuffleWithConstraint(stimulus_list_overt);
     let constrained_overt_vertical_horizontal_td = shuffleWithConstraint(stimulus_list_overt);
-    // 【ここまで追加】
 
     let stimulus_list_n = jsPsych.randomization.factorial(factors_n, 2);
 
@@ -833,32 +818,30 @@
     let trial_experiment_covert_Helmholtz = { timeline: [blanck, p5_trial_experiment_covert_Helmholtz, blanck], timeline_variables: stimulus_list_covert_Helmholtz, repetitions: 1 };
     let trial_experiment_covert_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_covert_vertical_horizontal, blanck], timeline_variables: stimulus_list_covert_vertical_horizontal, repetitions: 1 };
     
-// 431行目付近〜： timeline_variables の部分を書き換えます
-
-let trial_experiment_overt_Helmholtz_lr = { 
-  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
-  timeline_variables: constrained_overt_Helmholtz_lr, // ←【修正】
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_vertical_horizontal_lr = { 
-  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
-  timeline_variables: constrained_overt_vertical_horizontal_lr, // ←【修正】
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_Helmholtz_td = { 
-  timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
-  timeline_variables: constrained_overt_Helmholtz_td, // ←【修正】
-  repetitions: 1, 
-  randomize_order: false 
-};
-let trial_experiment_overt_vertical_horizontal_td = { 
-  timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
-  timeline_variables: constrained_overt_vertical_horizontal_td, // ←【修正】
-  repetitions: 1, 
-  randomize_order: false 
-};
+    let trial_experiment_overt_Helmholtz_lr = { 
+      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_lr, blanck], 
+      timeline_variables: constrained_overt_Helmholtz_lr, 
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_vertical_horizontal_lr = { 
+      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_lr, blanck], 
+      timeline_variables: constrained_overt_vertical_horizontal_lr, 
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_Helmholtz_td = { 
+      timeline: [blanck, p5_trial_experiment_overt_Helmholtz_td, blanck], 
+      timeline_variables: constrained_overt_Helmholtz_td, 
+      repetitions: 1, 
+      randomize_order: false 
+    };
+    let trial_experiment_overt_vertical_horizontal_td = { 
+      timeline: [blanck, p5_trial_experiment_overt_vertical_horizontal_td, blanck], 
+      timeline_variables: constrained_overt_vertical_horizontal_td, 
+      repetitions: 1, 
+      randomize_order: false 
+    };
     
     let trial_experiment_n_Helmholtz = { timeline: [blanck, p5_trial_experiment_n_Helmholtz, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
     let trial_experiment_n_vertical_horizontal = { timeline: [blanck, p5_trial_experiment_n_vertical_horizontal, blanck], timeline_variables: stimulus_list_n, repetitions: 1 };
@@ -881,7 +864,7 @@ let trial_experiment_overt_vertical_horizontal_td = {
       action: "save",
       experiment_id: "Dhm8yFT1M1mW",
       filename: filename,
-      data_string: () => jsPsych.data.get().csv()
+      data_string: () => jsPsychPsych.data.get().csv()
     };
 
     var inst_closing = {
@@ -895,8 +878,8 @@ let trial_experiment_overt_vertical_horizontal_td = {
 
     jsPsych.run([
       start_fullscreen,
-      start_pre_plactice,     // 【追加】調整法の説明
-      trial_adjustment_block,     // 【追加】調整法（4試行）
+      start_pre_plactice,
+      trial_adjustment_block,
       calculate_pse,
       start_plactice,
       trial_experiment_plactice,
