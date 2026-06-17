@@ -291,7 +291,16 @@
     // =========================================================================
     // 【jsPsych 教示・UI定義】
     // =========================================================================
-    const blanck = { type: jsPsychHtmlKeyboardResponse, stimulus: '<p> </p>', choices: 'NO_KEYS', data: { task: 'blank' }, trial_duration: 500 };
+    
+    // ★ ここを変更：真っ白な画面から注視点（+）へ
+    const blanck = { 
+      type: jsPsychHtmlKeyboardResponse, 
+      stimulus: '<div style="font-size: 60px; color: #333;">+</div>', 
+      choices: 'NO_KEYS', 
+      data: { task: 'blank' }, 
+      trial_duration: 500 
+    };
+    
     const get_par_info = { timeline: [{ type: jsPsychSurveyText, questions: [{ prompt: '参加者IDを入力してください', columns: 10, required: true, name: 'participantID' }], button_label: '次へ', on_finish: data => { let run_id = data.response.participantID; jsPsych.data.addProperties({ participantID: run_id }); filename = `${run_id}.csv`; } }] };
 
     const getIllusionSVG = (type, isLong) => {
@@ -451,10 +460,7 @@
     const createInst = (html) => ({ type: jsPsychHtmlButtonResponse, stimulus: html, choices: ['次へ'], data: { task: 'instruction' }, canvas_size: [CONFIG.canvasWidth, CONFIG.canvasHeight] });
 
     var start_pre_plactice = { timeline: [get_par_info, createInst(msg_adj)] };
-    
-    // ★ 復活させた最初の全体練習用教示画面
     var start_plactice = { timeline: [createInst(msg_prac_general)] };
-    
     var start_experiment = { timeline: [createInst(msg_start_exp)] };
 
     const start_plactice_n_VH = { timeline: [createInst(msg_prac(1))] };
@@ -553,7 +559,6 @@
           jsPsych.data.addProperties({ PSE_VH: PSE_VerticalHorizontal, PSE_Helmholtz: PSE_Helmholtz });
       }},
       
-      // ★ 削除してしまっていた「全体練習」を復活
       start_plactice,
       trial_experiment_plactice,
       
