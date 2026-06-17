@@ -483,7 +483,7 @@
         let reactiontime = p.millis() - nw0;
         if (reactiontime <= 100 && pre_circle == 1) { drawPreCircle(p, 1, shape[1]); }
         if (reactiontime <= 100 && pre_circle == 2) { drawPreCircle(p, 2, shape[1]); }
-        if (reactiontime > 100 && reactiontime < 400) { drawHelmholtz(p, shape[0] ); }
+        if (reactiontime > 100 && reactiontime < 200) { drawHelmholtz(p, shape[0] ); }
       };
     }
 
@@ -904,6 +904,7 @@
       start_pre_plactice,     // 【追加】調整法の説明
       trial_adjustment_block,     // 【追加】調整法（4試行）
       calculate_pse,
+      trial_experiment_covert_Helmholtz,
       start_plactice,
       trial_experiment_plactice,
       ...experiments,
