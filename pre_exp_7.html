@@ -12,6 +12,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="jspsych-p5.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.2"></script>
+
+    <style>
+        /* 教示画面用の共通スタイル */
+        .inst-container {
+            font-size: 18px; max-width: 850px; margin: 0 auto; text-align: left; line-height: 1.8; font-family: sans-serif;
+        }
+        .inst-title {
+            font-size: 24px; font-weight: bold; color: #333; text-align: center; margin-bottom: 20px;
+        }
+        .inst-box {
+            background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin: 20px 0;
+        }
+        /* キーボードボタンの装飾 */
+        .key-btn {
+            display: inline-block; padding: 4px 14px; background: #fff; border: 2px solid #ccc; 
+            border-radius: 6px; box-shadow: 0 4px 0 #ccc; font-weight: bold; font-family: monospace; 
+            font-size: 1.2em; color: #333; margin: 0 4px; transform: translateY(-2px);
+        }
+        /* 図解用のフレックスレイアウト */
+        .fig-row {
+            display: flex; justify-content: space-around; align-items: center; margin-top: 15px; text-align: center;
+        }
+        .fig-item {
+            background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; width: 45%; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .fig-item p { margin: 10px 0 0 0; font-size: 16px; }
+    </style>
 </head>
 <body></body>
 <script>
@@ -61,10 +88,10 @@
       const cSize = CONFIG.circleSize;
       const cDis = CONFIG.circleDis;
 
-      if (pre_circle === 1) { // 上下配置
+      if (pre_circle === 1) { 
         p.ellipse(0, -size / 2 - cDis, cSize, cSize);
         p.ellipse(0, size / 2 + cDis, cSize, cSize);
-      } else if (pre_circle === 2) { // 左右配置
+      } else if (pre_circle === 2) { 
         p.ellipse(-size / 2 - cDis, 0, cSize, cSize);
         p.ellipse(size / 2 + cDis, 0, cSize, cSize);
       }
@@ -79,12 +106,12 @@
       const [size1, size2] = (shape_type === 1 || shape_type === 3) 
         ? [sizeLarge, sizeSmall] : [sizeSmall, sizeLarge];
 
-      if (orientation === 1) { // 上下配置
-        p.ellipse(0, -size / 2 - cDis, size1, size1); // 上
-        p.ellipse(0, size / 2 + cDis, size2, size2);  // 下
-      } else if (orientation === 2) { // 左右配置
-        p.ellipse(-size / 2 - cDis, 0, size1, size1); // 左
-        p.ellipse(size / 2 + cDis, 0, size2, size2);  // 右
+      if (orientation === 1) { 
+        p.ellipse(0, -size / 2 - cDis, size1, size1); 
+        p.ellipse(0, size / 2 + cDis, size2, size2);  
+      } else if (orientation === 2) { 
+        p.ellipse(-size / 2 - cDis, 0, size1, size1); 
+        p.ellipse(size / 2 + cDis, 0, size2, size2);  
       }
     }
 
@@ -137,7 +164,7 @@
     }
 
     // =========================================================================
-    // 【実験ブロックごとのスケッチ生成関数（ファクトリー）】
+    // 【実験ブロックごとのスケッチ生成関数】
     // =========================================================================
     function getDrawFunc(type) {
       return type === 1 ? drawVerticalHorizontal : drawHelmholtz;
@@ -262,82 +289,118 @@
     }
 
     // =========================================================================
-    // 【jsPsych 教示・UI定義（p.jsを参考にデザインをリファイン）】
+    // 【jsPsych 教示・UI定義（図解入り）】
     // =========================================================================
     const blanck = { type: jsPsychHtmlKeyboardResponse, stimulus: '<p> </p>', choices: 'NO_KEYS', data: { task: 'blank' }, trial_duration: 500 };
     const get_par_info = { timeline: [{ type: jsPsychSurveyText, questions: [{ prompt: '参加者IDを入力してください', columns: 10, required: true, name: 'participantID' }], button_label: '次へ', on_finish: data => { let run_id = data.response.participantID; jsPsych.data.addProperties({ participantID: run_id }); filename = `${run_id}.csv`; } }] };
 
-    // 共通のCSSスタイル定義
-    const styleBase = `font-size: 20px; max-width: 800px; margin: 0 auto; text-align: left; line-height: 1.8; font-family: sans-serif;`;
-    const titleStyle = `font-size: 24px; font-weight: bold; color: #333; text-align: center; margin-bottom: 20px;`;
-    const boxStyle = `background-color: #f9f9f9; padding: 15px 25px; border-radius: 8px; border: 1px solid #ddd; margin: 20px 0;`;
-
     const msg_adj = `
-      <div style="${styleBase}">
-        <p style="${titleStyle}">【長さの調整】</p>
+      <div class="inst-container">
+        <p class="inst-title">【長さの調整】</p>
         <p>まず、あなた自身の見え方のクセを測定します。</p>
-        <p>これからモニターに図形が表示されますので、<strong>「↑」または「↓」キー</strong>を押して、<br>
-        図形の<span style="color: #c00; font-weight: bold;">縦と横がまったく同じ長さに見える</span>ように長さを調整してください。</p>
-        <p>同じ長さに見えたら、<strong>「SPACE」キー</strong>を押して決定してください。</p>
+        <div class="inst-box">
+          <div style="display:flex; align-items:center;">
+            <div style="flex:1;">
+              <p>モニターに図形が表示されますので、<strong>「↑」または「↓」キー</strong>を押して、図形の<span style="color: #c00; font-weight: bold;">縦と横がまったく同じ長さに見える</span>ように長さを調整してください。</p>
+              <p>同じ長さに見えたら、<strong>「SPACE」キー</strong>を押して決定してください。</p>
+            </div>
+            <div style="width:120px; text-align:center;">
+              <svg width="80" height="80" viewBox="0 0 100 100">
+                <line x1="20" y1="80" x2="80" y2="80" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                <line x1="50" y1="80" x2="50" y2="20" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                <path d="M60 30 L65 20 L70 30 M65 20 L65 70 M60 60 L65 70 L70 60" stroke="#c00" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
     const msg_prac = `
-      <div style="${styleBase}">
-        <p style="${titleStyle}">【図形の長さ判断】</p>
-        <p>これからモニターに図形が表示されます。</p>
-        <p>図形の縦と横の長さを比べて、以下のようにキーボードで直感的に回答してください：</p>
-        <div style="${boxStyle}">
-          <ul style="margin: 0; padding-left: 20px;">
-            <li>縦の長さが横より<strong style="color:#c00;">長い</strong>と感じた場合 ➡ <strong>「↑」（上矢印）キー</strong></li>
-            <li>縦の長さが横より<strong style="color:#0055cc;">短い</strong>と感じた場合 ➡ <strong>「←」（左矢印）キー</strong></li>
-          </ul>
+      <div class="inst-container">
+        <p class="inst-title">【図形の長さ判断】</p>
+        <p>これからモニターに図形が表示されます。図形の縦と横の長さを比べて、以下のようにキーボードで直感的に回答してください。</p>
+        <div class="inst-box" style="padding-top:10px;">
+          <div class="fig-row">
+            <div class="fig-item">
+              <svg width="80" height="80" viewBox="0 0 100 100">
+                <line x1="30" y1="80" x2="70" y2="80" stroke="#000" stroke-width="5" stroke-linecap="square"/>
+                <line x1="50" y1="80" x2="50" y2="10" stroke="#000" stroke-width="5" stroke-linecap="square"/>
+              </svg>
+              <p>縦が横より<strong style="color:#c00;">長い</strong>と感じたら</p>
+              <p>➡ <span class="key-btn">↑</span></p>
+            </div>
+            <div class="fig-item">
+              <svg width="80" height="80" viewBox="0 0 100 100">
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#000" stroke-width="5" stroke-linecap="square"/>
+                <line x1="50" y1="60" x2="50" y2="30" stroke="#000" stroke-width="5" stroke-linecap="square"/>
+              </svg>
+              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
+              <p>➡ <span class="key-btn">←</span></p>
+            </div>
+          </div>
         </div>
-        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+        <p style="text-align: center; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
       </div>
     `;
 
     const msg_covert = `
-      <div style="${styleBase}">
-        <p style="${titleStyle}">【円のあとに図形が表示される場合】</p>
+      <div class="inst-container">
+        <p class="inst-title">【円のあとに図形が表示される場合】</p>
         <p>モニターに一瞬だけ<strong>「○（円）」が2つ表示された後、図形が表示されます。</strong></p>
-        <p>円については何も答える必要はありません。図形の長さを比べて、先ほどと<span style="color: #c00; font-weight: bold;">同じように回答してください。</span></p>
-        <div style="${boxStyle}">
-          <ul style="margin: 0; padding-left: 20px;">
-            <li>縦が<strong style="color:#c00;">長い</strong> ➡ <strong>「↑」（上矢印）キー</strong></li>
-            <li>縦が<strong style="color:#0055cc;">短い</strong> ➡ <strong>「←」（左矢印）キー</strong></li>
-          </ul>
+        <div class="inst-box">
+          <p>円については何も答える必要はありません。<br>図形の長さを比べて、先ほどと<span style="color: #c00; font-weight: bold;">まったく同じように回答</span>してください。</p>
+          <div style="text-align:center; margin-top:15px;">
+            <span style="display:inline-block; border:2px dashed #999; border-radius:50%; width:30px; height:30px; margin:0 20px;"></span>
+            <span style="display:inline-block; border:2px dashed #999; border-radius:50%; width:30px; height:30px; margin:0 20px;"></span>
+            <br><span style="font-size:14px; color:#666;">（円は一瞬だけ表示されます）</span>
+          </div>
         </div>
-        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+        <p style="text-align: center; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
       </div>
     `;
 
-    const msg_overt = (dir, key1, key2, k1, k2) => `
-      <div style="${styleBase}">
-        <p style="${titleStyle}">【円の大小、または図形の長さを判断する場合】</p>
+    const msg_overt = (dir, key1, key2, k1, k2) => {
+      let svgContent1, svgContent2;
+      if (dir === "左右") {
+        svgContent1 = `<circle cx="30" cy="50" r="25" fill="none" stroke="#000" stroke-width="3"/><circle cx="80" cy="50" r="12" fill="none" stroke="#000" stroke-width="3"/>`;
+        svgContent2 = `<circle cx="20" cy="50" r="12" fill="none" stroke="#000" stroke-width="3"/><circle cx="70" cy="50" r="25" fill="none" stroke="#000" stroke-width="3"/>`;
+      } else {
+        svgContent1 = `<circle cx="50" cy="30" r="25" fill="none" stroke="#000" stroke-width="3"/><circle cx="50" cy="80" r="12" fill="none" stroke="#000" stroke-width="3"/>`;
+        svgContent2 = `<circle cx="50" cy="20" r="12" fill="none" stroke="#000" stroke-width="3"/><circle cx="50" cy="70" r="25" fill="none" stroke="#000" stroke-width="3"/>`;
+      }
+      return `
+      <div class="inst-container">
+        <p class="inst-title">【円の大小、または図形の長さを判断する場合】</p>
         <p>次のブロックでは、「大小の異なる2つの円」または「線分の図形」の<strong>どちらかがランダムに表示されます。</strong></p>
         
-        <div style="${boxStyle}">
-          <p style="margin-top: 0;"><strong>【１】「2つの円」が${dir}に表示された場合：</strong></p>
-          <ul style="padding-left: 20px;">
-            <li><strong>${key1}の円が大きい</strong>と感じた場合 ➡ <strong>「${k1}」キー</strong></li>
-            <li><strong>${key2}の円が大きい</strong>と感じた場合 ➡ <strong>「${k2}」キー</strong></li>
-          </ul>
+        <div class="inst-box">
+          <p><strong>【１】「2つの円」が${dir}に表示された場合：</strong></p>
+          <div class="fig-row">
+            <div class="fig-item">
+              <svg width="100" height="100" viewBox="0 0 100 100">${svgContent1}</svg>
+              <p><strong>${key1}の円が大きい</strong></p><p>➡ <span class="key-btn">${k1}</span></p>
+            </div>
+            <div class="fig-item">
+              <svg width="100" height="100" viewBox="0 0 100 100">${svgContent2}</svg>
+              <p><strong>${key2}の円が大きい</strong></p><p>➡ <span class="key-btn">${k2}</span></p>
+            </div>
+          </div>
           
-          <hr style="border: none; border-top: 1px dashed #ccc; margin: 20px 0;">
+          <hr style="border: none; border-top: 1px dashed #ccc; margin: 25px 0;">
           
           <p><strong>【２】「線分の図形」が表示された場合：</strong></p>
-          <ul style="margin-bottom: 0; padding-left: 20px;">
-            <li>これまでと同様に、縦が長ければ<strong>「↑」キー</strong>、短ければ<strong>「←」キー</strong>を押してください。</li>
-          </ul>
+          <div class="fig-row" style="justify-content: flex-start; text-align:left; margin-left:10px;">
+            <p>これまでと同様に、縦が長ければ <span class="key-btn">↑</span> 、短ければ <span class="key-btn">←</span> を押してください。</p>
+          </div>
         </div>
-        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
-      </div>
-    `;
+        <p style="text-align: center; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+      </div>`;
+    };
 
     const msg_start_exp = `
-      <div style="${styleBase} text-align: center;">
-        <p style="${titleStyle}">練習が終わりました</p>
+      <div class="inst-container" style="text-align: center;">
+        <p class="inst-title">練習が終わりました</p>
         <p>ルールは確認できましたか？<br>それでは、本番の試行にうつります。</p>
       </div>
     `;
