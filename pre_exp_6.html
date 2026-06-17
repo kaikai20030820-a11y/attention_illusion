@@ -777,7 +777,7 @@
       repetitions: 1,
     };
 
-    let shape_p = createRandomPairs([0,0,30,-30], [1,2,3,4]);
+    let shape_p = createRandomPairs([0,0,30,-30], [1,1,2,2]);
     let plactice_factors_covert = { shape: createRandomPairs([0,30,-30], [1,1,1]), pre_circle:[1,2] };
     const shape_plactice_overt = shape_p.map(subArray => shuffleArray(subArray));
     let factors_plactice_overt = shape_plactice_overt.flat();
@@ -786,7 +786,7 @@
     let stimulus_plactice_overt = factors_plactice_overt.map(item => ({ shape: item }));
 
     let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30], [1,1,1,1,1,1,1,1,1,1]);
-    let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30], [1,1,1,2,2,3,3,3,4,4]);
+    let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30], [1,1,1,1,1,2,2,2,2,2]);
 
     let factors_covert_Helmholtz = { shape: shape1, pre_circle: [1,2] };
     let factors_covert_vertical_horizontal = { shape: shape1, pre_circle: [1,2] };
