@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> 
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.2.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="jspsych-p5.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.2"></script>
+</head>
+<body></body>
+<script>
+    const jsPsych = initJsPsych();
+
+    // =========================================================================
+    // 【一括設定オブジェクト】
+    // =========================================================================
+    const CONFIG = {
+      canvasWidth: 1000,         
+      canvasHeight: 600,         
+      illusionSize: 150,         
+      circleSize: 50,            
+      circleDis: 50,             
+      lineNumber: 6,             
+      overtShapeTimeout: 1500    
+    };
+
+    let subject_id = jsPsych.randomization.randomID(10);
+    let filename = `${subject_id}.csv`;
+    let PSE_Helmholtz = 0;
+    let PSE_VerticalHorizontal = 0;
+
+    // =========================================================================
+    // 【共通描画ヘルパー関数】
+    // =========================================================================
+    function drawHelmholtz(p, effect_size) {
+      let final_effect = effect_size + PSE_Helmholtz; 
+      const size = CONFIG.illusionSize;
+      const lines = CONFIG.lineNumber;
+      for (let i = 0; i <= lines; i++) {
+        let y = -(size + final_effect) / 2 + (size + final_effect) * i / lines;
+        p.line(-size / 2, y, size / 2, y);
+      }
+    }
+
+    function drawVerticalHorizontal(p, effect_size) {
+      let final_effect = effect_size + PSE_VerticalHorizontal; 
+      const size = CONFIG.illusionSize;
+      p.line(0, -size / 2, 0, size / 2);
+      p.line(-size / 2 - final_effect / 2, size / 2, size / 2 + final_effect / 2, size / 2);
+    }
+
+    function drawPreCircle(p, pre_circle, shape_type) {
+      if (shape_type !== 1) return;
+      const size = CONFIG.illusionSize;
+      const cSize = CONFIG.circleSize;
+      const cDis = CONFIG.circleDis;
+
+      if (pre_circle === 1) { // 上下配置
+        p.ellipse(0, -size / 2 - cDis, cSize, cSize);
+        p.ellipse(0, size / 2 + cDis, cSize, cSize);
+      } else if (pre_circle === 2) { // 左右配置
+        p.ellipse(-size / 2 - cDis, 0, cSize, cSize);
+        p.ellipse(size / 2 + cDis, 0, cSize, cSize);
+      }
+    }
+
+    function drawOvertCircles(p, orientation, shape_type) {
+      const size = CONFIG.illusionSize;
+      const cDis = CONFIG.circleDis;
+      const sizeLarge = CONFIG.circleSize * 1.25;
+      const sizeSmall = CONFIG.circleSize * 0.75;
+
+      const [size1, size2] = (shape_type === 1 || shape_type === 3) 
+        ? [sizeLarge, sizeSmall] : [sizeSmall, sizeLarge];
+
+      if (orientation === 1) { // 上下配置
+        p.ellipse(0, -size / 2 - cDis, size1, size1); // 上
+        p.ellipse(0, size / 2 + cDis, size2, size2);  // 下
+      } else if (orientation === 2) { // 左右配置
+        p.ellipse(-size / 2 - cDis, 0, size1, size1); // 左
+        p.ellipse(size / 2 + cDis, 0, size2, size2);  // 右
+      }
+    }
+
+    function commonSetup(p, trial) {
+      p.createCanvas(CONFIG.canvasWidth, CONFIG.canvasHeight);
+      p.noCursor();
+      return p.millis(); 
+    }
+
+    function commonDrawStyle(p) {
+      p.background(255);
+      p.strokeWeight(2.5);
+      p.stroke(0);
+      p.noFill();
+      p.translate(p.width / 2, p.height / 2);
+      p.strokeCap(p.PROJECT);
+    }
+
+    // =========================================================================
+    // 【キー監視システム】
+    // =========================================================================
+    function setupNativeKeyListener(trial, nw0, p, mode, allowSpace = false) {
+      let keyHandler = function(e) {
+        let result = null;
+        let key = e.key;
+
+        if (mode === 'overt_lr') {
+          if (['ArrowLeft', 'Left'].includes(key)) result = 'left';
+          else if (['ArrowRight', 'Right'].includes(key)) result = 'right';
+        } else if (mode === 'overt_td') {
+          if (['ArrowUp', 'Up'].includes(key)) result = 'up';
+          else if (['ArrowDown', 'Down'].includes(key)) result = 'down';
+        } else {
+          if (['ArrowLeft', 'Left'].includes(key)) result = 0;
+          else if (['ArrowUp', 'Up'].includes(key)) result = 1;
+          else if (allowSpace && (key === ' ' || e.code === 'Space')) result = 'space';
+        }
+
+        if (result !== null) {
+          e.preventDefault();
+          trial.data.result = result;
+          trial.data.rt = p.millis() - nw0;
+          window.removeEventListener('keydown', keyHandler);
+          p.noLoop();
+          trial.end_trial();
+        }
+      };
+      window.addEventListener('keydown', keyHandler);
+      trial.cleanupKeyHandler = () => window.removeEventListener('keydown', keyHandler);
+    }
+
+    // =========================================================================
+    // 【実験ブロックごとのスケッチ生成関数（ファクトリー）】
+    // =========================================================================
+    function getDrawFunc(type) {
+      return type === 1 ? drawVerticalHorizontal : drawHelmholtz;
+    }
+
+    function createNormalSketch(illusionType) {
+      return function(p) {
+        let trial = jsPsych.getCurrentTrial();
+        let effect_size = jsPsych.timelineVariable("effect_size", true);
+        let nw0;
+        p.setup = function () {
+          trial.data.effect_size = effect_size;
+          nw0 = commonSetup(p, trial);
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
+        };
+        p.draw = function() {
+          commonDrawStyle(p);
+          getDrawFunc(illusionType)(p, effect_size);
+        };
+      }
+    }
+
+    function createCovertSketch(illusionType) {
+      return function(p) {
+        let trial = jsPsych.getCurrentTrial();
+        let pre_circle = jsPsych.timelineVariable("pre_circle", true);
+        let shape = jsPsych.timelineVariable("shape", true);
+        let nw0;
+        p.setup = function () {
+          trial.data.pre_circle = pre_circle;
+          trial.data.effect_size = shape[0];
+          trial.data.shape_type = shape[1];
+          nw0 = commonSetup(p, trial);
+          setupNativeKeyListener(trial, nw0, p, 'normal', false);
+        };
+        p.draw = function() {
+          commonDrawStyle(p);
+          let rt = p.millis() - nw0;
+          if (rt <= 100) drawPreCircle(p, pre_circle, shape[1]);
+          if (rt > 100 && rt < 400) getDrawFunc(illusionType)(p, shape[0]);
+        };
+      }
+    }
+
+    function createOvertSketch(illusionType, overtMode, orientation) {
+      return function(p) {
+        let trial = jsPsych.getCurrentTrial();
+        let shape = jsPsych.timelineVariable("shape", true);
+        let nw0;
+        p.setup = function () {
+          if (shape >= 1 && shape <= 4) { trial.data.shape_type = shape; trial.data.effect_size = null; } 
+          else { trial.data.shape_type = null; trial.data.effect_size = shape; }
+          nw0 = commonSetup(p, trial);
+          setupNativeKeyListener(trial, nw0, p, (shape >= 1 && shape <= 4) ? overtMode : 'normal', false);
+        };
+        p.draw = function() {
+          commonDrawStyle(p);
+          let rt = p.millis() - nw0;
+          if (shape >= 1 && shape <= 4) {
+            if (rt <= 300) drawOvertCircles(p, orientation, shape);
+            if (rt > CONFIG.overtShapeTimeout) {
+              trial.data.result = 'no_response';
+              trial.data.rt = null;
+              if (trial.cleanupKeyHandler) trial.cleanupKeyHandler();
+              p.noLoop();
+              trial.end_trial();
+            }
+          } else {
+            if (rt <= 300 && (shape <= 0 || shape === 30)) getDrawFunc(illusionType)(p, shape);
+          }
+        };
+      }
+    }
+
+    function experiment_adjustment(p) {
+      let trial = jsPsych.getCurrentTrial();
+      let illusion = jsPsych.timelineVariable("illusion", true);
+      let current_diff = jsPsych.timelineVariable("initial_diff", true);
+      let nw0;
+
+      p.setup = function () {
+        trial.data.illusion = illusion;
+        nw0 = commonSetup(p, trial);
+
+        let keyHandler = function(e) {
+          if (['ArrowUp', 'Up'].includes(e.key)) { current_diff += 2; e.preventDefault(); } 
+          else if (['ArrowDown', 'Down'].includes(e.key)) { current_diff -= 2; e.preventDefault(); } 
+          else if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault();
+            trial.data.result = 'adjusted';
+            trial.data.adjusted_diff = current_diff;
+            trial.data.rt = p.millis() - nw0;
+            window.removeEventListener('keydown', keyHandler);
+            p.noLoop();
+            trial.end_trial();
+          }
+        };
+        window.addEventListener('keydown', keyHandler);
+        trial.cleanupKeyHandler = () => window.removeEventListener('keydown', keyHandler);
+      };
+
+      p.draw = function() {
+        commonDrawStyle(p);
+        p.push(); p.fill(0); p.noStroke(); p.textSize(18); p.textAlign(p.CENTER, p.CENTER);
+        p.text("↑ / ↓ キーで長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください", 0, - CONFIG.canvasHeight / 2 + 50);
+        p.pop();
+        getDrawFunc(illusion)(p, current_diff);
+      };
+    }
+
+    function experiment_plactice(p) {
+      let trial = jsPsych.getCurrentTrial();
+      let illusion = jsPsych.timelineVariable("illusion", true);
+      let effect_size = jsPsych.timelineVariable("effect_size", true);
+      p.setup = function () {
+        trial.data.illusion = illusion; trial.data.effect_size = effect_size;
+        setupNativeKeyListener(trial, commonSetup(p, trial), p, 'normal', false);
+      };
+      p.draw = function() {
+        commonDrawStyle(p); getDrawFunc(illusion)(p, effect_size);
+      };
+    }
+
+    // =========================================================================
+    // 【jsPsych 教示・UI定義（p.jsを参考にデザインをリファイン）】
+    // =========================================================================
+    const blanck = { type: jsPsychHtmlKeyboardResponse, stimulus: '<p> </p>', choices: 'NO_KEYS', data: { task: 'blank' }, trial_duration: 500 };
+    const get_par_info = { timeline: [{ type: jsPsychSurveyText, questions: [{ prompt: '参加者IDを入力してください', columns: 10, required: true, name: 'participantID' }], button_label: '次へ', on_finish: data => { let run_id = data.response.participantID; jsPsych.data.addProperties({ participantID: run_id }); filename = `${run_id}.csv`; } }] };
+
+    // 共通のCSSスタイル定義
+    const styleBase = `font-size: 20px; max-width: 800px; margin: 0 auto; text-align: left; line-height: 1.8; font-family: sans-serif;`;
+    const titleStyle = `font-size: 24px; font-weight: bold; color: #333; text-align: center; margin-bottom: 20px;`;
+    const boxStyle = `background-color: #f9f9f9; padding: 15px 25px; border-radius: 8px; border: 1px solid #ddd; margin: 20px 0;`;
+
+    const msg_adj = `
+      <div style="${styleBase}">
+        <p style="${titleStyle}">【長さの調整】</p>
+        <p>まず、あなた自身の見え方のクセを測定します。</p>
+        <p>これからモニターに図形が表示されますので、<strong>「↑」または「↓」キー</strong>を押して、<br>
+        図形の<span style="color: #c00; font-weight: bold;">縦と横がまったく同じ長さに見える</span>ように長さを調整してください。</p>
+        <p>同じ長さに見えたら、<strong>「SPACE」キー</strong>を押して決定してください。</p>
+      </div>
+    `;
+
+    const msg_prac = `
+      <div style="${styleBase}">
+        <p style="${titleStyle}">【図形の長さ判断】</p>
+        <p>これからモニターに図形が表示されます。</p>
+        <p>図形の縦と横の長さを比べて、以下のようにキーボードで直感的に回答してください：</p>
+        <div style="${boxStyle}">
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>縦の長さが横より<strong style="color:#c00;">長い</strong>と感じた場合 ➡ <strong>「↑」（上矢印）キー</strong></li>
+            <li>縦の長さが横より<strong style="color:#0055cc;">短い</strong>と感じた場合 ➡ <strong>「←」（左矢印）キー</strong></li>
+          </ul>
+        </div>
+        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+      </div>
+    `;
+
+    const msg_covert = `
+      <div style="${styleBase}">
+        <p style="${titleStyle}">【円のあとに図形が表示される場合】</p>
+        <p>モニターに一瞬だけ<strong>「○（円）」が2つ表示された後、図形が表示されます。</strong></p>
+        <p>円については何も答える必要はありません。図形の長さを比べて、先ほどと<span style="color: #c00; font-weight: bold;">同じように回答してください。</span></p>
+        <div style="${boxStyle}">
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>縦が<strong style="color:#c00;">長い</strong> ➡ <strong>「↑」（上矢印）キー</strong></li>
+            <li>縦が<strong style="color:#0055cc;">短い</strong> ➡ <strong>「←」（左矢印）キー</strong></li>
+          </ul>
+        </div>
+        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+      </div>
+    `;
+
+    const msg_overt = (dir, key1, key2, k1, k2) => `
+      <div style="${styleBase}">
+        <p style="${titleStyle}">【円の大小、または図形の長さを判断する場合】</p>
+        <p>次のブロックでは、「大小の異なる2つの円」または「線分の図形」の<strong>どちらかがランダムに表示されます。</strong></p>
+        
+        <div style="${boxStyle}">
+          <p style="margin-top: 0;"><strong>【１】「2つの円」が${dir}に表示された場合：</strong></p>
+          <ul style="padding-left: 20px;">
+            <li><strong>${key1}の円が大きい</strong>と感じた場合 ➡ <strong>「${k1}」キー</strong></li>
+            <li><strong>${key2}の円が大きい</strong>と感じた場合 ➡ <strong>「${k2}」キー</strong></li>
+          </ul>
+          
+          <hr style="border: none; border-top: 1px dashed #ccc; margin: 20px 0;">
+          
+          <p><strong>【２】「線分の図形」が表示された場合：</strong></p>
+          <ul style="margin-bottom: 0; padding-left: 20px;">
+            <li>これまでと同様に、縦が長ければ<strong>「↑」キー</strong>、短ければ<strong>「←」キー</strong>を押してください。</li>
+          </ul>
+        </div>
+        <p style="text-align: center; margin-top: 20px; color: #555;">準備ができましたら、練習を始めます。「次へ」を押してください。</p>
+      </div>
+    `;
+
+    const msg_start_exp = `
+      <div style="${styleBase} text-align: center;">
+        <p style="${titleStyle}">練習が終わりました</p>
+        <p>ルールは確認できましたか？<br>それでは、本番の試行にうつります。</p>
+      </div>
+    `;
+
+    const createInst = (html) => ({ type: jsPsychHtmlButtonResponse, stimulus: html, choices: ['次へ'], data: { task: 'instruction' }, canvas_size: [CONFIG.canvasWidth, CONFIG.canvasHeight] });
+
+    var start_pre_plactice = { timeline: [get_par_info, createInst(msg_adj)] };
+    var start_plactice = { timeline: [createInst(msg_prac)] };
+    var start_plactice_n = { timeline: [createInst(msg_prac)] };
+    var start_plactice_covert = { timeline: [createInst(msg_covert)] };
+    var start_experiment = { timeline: [createInst(msg_start_exp)] };
+    var start_experiment_lr = { timeline: [createInst(msg_overt("左右", "左", "右", "←", "→"))] };
+    var start_experiment_td = { timeline: [createInst(msg_overt("上下", "上", "下", "↑", "↓"))] };
+
+    // =========================================================================
+    // 【データ構造とランダマイズ定義】
+    // =========================================================================
+    function createRandomPairs(arr1, arr2) {
+      let shuffled = jsPsych.randomization.shuffle(arr2);
+      return arr1.map((item, i) => [item, shuffled[i]]);
+    }
+
+    function shuffleWithConstraint(stimulus_list) {
+      for (let attempts = 0; attempts < 2000; attempts++) {
+        let shuffled = jsPsych.randomization.shuffle(stimulus_list);
+        let isValid = true; let count = 1;
+        for (let i = 1; i < shuffled.length; i++) {
+          let prev = shuffled[i-1].shape, curr = shuffled[i].shape;
+          if ((prev >= 1 && prev <= 4) === (curr >= 1 && curr <= 4)) {
+            if (++count > 2) { isValid = false; break; }
+          } else count = 1;
+        }
+        if (isValid) return shuffled;
+      }
+      console.warn("指定された制約を満たす配列が生成できませんでした。");
+      return jsPsych.randomization.shuffle(stimulus_list);
+    }
+
+    let plactice_factors = { illusion:[1,2], effect_size:[-30,0,30] };
+    let shape_p = createRandomPairs([0,0,30,-30], [1,1,2,2]);
+    let plactice_factors_covert = { shape: createRandomPairs([0,30,-30], [1,1,1]), pre_circle:[1,2] };
+    let factors_plactice_overt = shape_p.map(sub => jsPsych.randomization.shuffle(sub)).flat();
+    
+    let shape1 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30], [1,1,1,1,1,1,1,1,1,1]);
+    let shape3 = createRandomPairs([0,0,0,0,0,0,0,0,30,-30], [1,1,1,1,1,2,2,2,2,2]);
+    let factors_overt = shape3.map(sub => jsPsych.randomization.shuffle(sub)).flat();
+
+    let stimulus_plactice = jsPsych.randomization.factorial(plactice_factors, 1);
+    let stimulus_plactice_covert = jsPsych.randomization.factorial(plactice_factors_covert, 1);
+    let stimulus_plactice_overt = factors_plactice_overt.map(shape => ({ shape }));
+    let stimulus_list_covert = jsPsych.randomization.factorial({ shape: shape1, pre_circle: [1,2] }, 1);
+    let stimulus_list_n = jsPsych.randomization.factorial({ effect_size: [0,0,0,0,0,0,0,0,30,-30] }, 2);
+
+    let overt_constrained_list = () => shuffleWithConstraint(factors_overt.map(shape => ({ shape })));
+
+    // =========================================================================
+    // 【試行ブロック生成】
+    // =========================================================================
+    const makeTrial = (sketchFunc, taskName) => ({ type: jsPsychP5, sketch: sketchFunc, data: { task: taskName } });
+    const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj, blanck], timeline_variables: vars, repetitions: 1, randomize_order: random });
+
+    let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ { illusion: 1, initial_diff: 30 }, { illusion: 1, initial_diff: -30 }, { illusion: 2, initial_diff: 30 }, { illusion: 2, initial_diff: -30 } ]));
+    let trial_experiment_plactice = makeBlock(makeTrial(experiment_plactice, 'plactice'), stimulus_plactice);
+
+    let trial_plactice_n_Helmholtz = makeBlock(makeTrial(createNormalSketch(2), 'plactice_n_Helmholtz'), stimulus_plactice);
+    let trial_plactice_n_vertical_horizontal = makeBlock(makeTrial(createNormalSketch(1), 'plactice_n_vertical_horizontal'), stimulus_plactice);
+    let trial_experiment_n_Helmholtz = makeBlock(makeTrial(createNormalSketch(2), 'trial_n_Helmholtz'), stimulus_list_n);
+    let trial_experiment_n_vertical_horizontal = makeBlock(makeTrial(createNormalSketch(1), 'trial_n_vertical_horizontal'), stimulus_list_n);
+
+    let trial_plactice_covert_Helmholtz = makeBlock(makeTrial(createCovertSketch(2), 'plactice_covert_Helmholtz'), stimulus_plactice_covert);
+    let trial_plactice_covert_vertical_horizontal = makeBlock(makeTrial(createCovertSketch(1), 'plactice_covert_vertical_horizontal'), stimulus_plactice_covert);
+    let trial_experiment_covert_Helmholtz = makeBlock(makeTrial(createCovertSketch(2), 'trial_covert_Helmholtz'), stimulus_list_covert);
+    let trial_experiment_covert_vertical_horizontal = makeBlock(makeTrial(createCovertSketch(1), 'trial_covert_vertical_horizontal'), stimulus_list_covert);
+
+    let trial_plactice_overt_Helmholtz_lr = makeBlock(makeTrial(createOvertSketch(2, 'overt_lr', 2), 'plactice_overt_Helmholtz_lr'), stimulus_plactice_overt);
+    let trial_plactice_overt_vertical_horizontal_lr = makeBlock(makeTrial(createOvertSketch(1, 'overt_lr', 2), 'plactice_overt_vertical_horizontal_lr'), stimulus_plactice_overt);
+    let trial_plactice_overt_Helmholtz_td = makeBlock(makeTrial(createOvertSketch(2, 'overt_td', 1), 'plactice_overt_Helmholtz_td'), stimulus_plactice_overt);
+    let trial_plactice_overt_vertical_horizontal_td = makeBlock(makeTrial(createOvertSketch(1, 'overt_td', 1), 'plactice_overt_vertical_horizontal_td'), stimulus_plactice_overt);
+
+    let trial_experiment_overt_Helmholtz_lr = makeBlock(makeTrial(createOvertSketch(2, 'overt_lr', 2), 'trial_overt_Helmholtz_lr'), overt_constrained_list(), false);
+    let trial_experiment_overt_vertical_horizontal_lr = makeBlock(makeTrial(createOvertSketch(1, 'overt_lr', 2), 'trial_overt_vertical_horizontal_lr'), overt_constrained_list(), false);
+    let trial_experiment_overt_Helmholtz_td = makeBlock(makeTrial(createOvertSketch(2, 'overt_td', 1), 'trial_overt_Helmholtz_td'), overt_constrained_list(), false);
+    let trial_experiment_overt_vertical_horizontal_td = makeBlock(makeTrial(createOvertSketch(1, 'overt_td', 1), 'trial_overt_vertical_horizontal_td'), overt_constrained_list(), false);
+
+    // =========================================================================
+    // 【実験実行】
+    // =========================================================================
+    jsPsych.run([
+      { type: jsPsychFullscreen, message: '<p>ウィンドウサイズを最大化します。下のボタンを押してください。</p>', button_label: '次へ', fullscreen_mode: true },
+      start_pre_plactice,
+      trial_adjustment_block,
+      { type: jsPsychCallFunction, func: () => {
+          let adj_data = jsPsych.data.get().filter({task: 'adjustment'}).values();
+          PSE_VerticalHorizontal = adj_data.filter(d => d.illusion === 1).reduce((a,b)=>a+b.adjusted_diff,0) / 2;
+          PSE_Helmholtz = adj_data.filter(d => d.illusion === 2).reduce((a,b)=>a+b.adjusted_diff,0) / 2;
+          jsPsych.data.addProperties({ PSE_VH: PSE_VerticalHorizontal, PSE_Helmholtz: PSE_Helmholtz });
+      }},
+      start_plactice,
+      trial_experiment_plactice,
+      ...jsPsych.randomization.shuffle([
+        { timeline: [start_plactice_n, trial_plactice_n_Helmholtz, start_experiment, trial_experiment_n_Helmholtz] },
+        { timeline: [start_plactice_n, trial_plactice_n_vertical_horizontal, start_experiment, trial_experiment_n_vertical_horizontal] },
+        { timeline: [start_plactice_covert, trial_plactice_covert_Helmholtz, start_experiment, trial_experiment_covert_Helmholtz] },
+        { timeline: [start_plactice_covert, trial_plactice_covert_vertical_horizontal, start_experiment, trial_experiment_covert_vertical_horizontal] },
+        { timeline: [start_experiment_lr, trial_plactice_overt_Helmholtz_lr, start_experiment, trial_experiment_overt_Helmholtz_lr] },
+        { timeline: [start_experiment_lr, trial_plactice_overt_vertical_horizontal_lr, start_experiment, trial_experiment_overt_vertical_horizontal_lr] },
+        { timeline: [start_experiment_td, trial_plactice_overt_Helmholtz_td, start_experiment, trial_experiment_overt_Helmholtz_td] },
+        { timeline: [start_experiment_td, trial_plactice_overt_vertical_horizontal_td, start_experiment, trial_experiment_overt_vertical_horizontal_td] }
+      ]),
+      { type: jsPsychPipe, action: "save", experiment_id: "Dhm8yFT1M1mW", filename: filename, data_string: () => jsPsych.data.get().csv() },
+      { type: jsPsychHtmlKeyboardResponse, stimulus: '<p>実験はすべて終了しました。ご協力ありがとうございました。</p>', prompt: 'そのまま待機してください。5秒経過すると自動でウィンドウサイズがもとに戻ります。', choices: "NO_KEYS", trial_duration: 5000 },
+      { type: jsPsychFullscreen, fullscreen_mode: false }
+    ]);
+</script>
+</html>
