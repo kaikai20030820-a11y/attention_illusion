@@ -289,18 +289,17 @@
     }
 
     // =========================================================================
-    // 【jsPsych 教示・UI定義（図解入り・錯視タイプによる出し分け）】
+    // 【jsPsych 教示・UI定義】
     // =========================================================================
     const blanck = { type: jsPsychHtmlKeyboardResponse, stimulus: '<p> </p>', choices: 'NO_KEYS', data: { task: 'blank' }, trial_duration: 500 };
     const get_par_info = { timeline: [{ type: jsPsychSurveyText, questions: [{ prompt: '参加者IDを入力してください', columns: 10, required: true, name: 'participantID' }], button_label: '次へ', on_finish: data => { let run_id = data.response.participantID; jsPsych.data.addProperties({ participantID: run_id }); filename = `${run_id}.csv`; } }] };
 
-    // ブロックに応じて図形を出し分けるためのSVGジェネレーター
     const getIllusionSVG = (type, isLong) => {
-      if (type === 1) { // 垂直水平錯視（逆T字）
+      if (type === 1) { 
         return isLong
           ? `<svg width="80" height="80" viewBox="0 0 100 100"><line x1="30" y1="80" x2="70" y2="80" stroke="#000" stroke-width="5" stroke-linecap="square"/><line x1="50" y1="80" x2="50" y2="10" stroke="#000" stroke-width="5" stroke-linecap="square"/></svg>`
           : `<svg width="80" height="80" viewBox="0 0 100 100"><line x1="10" y1="60" x2="90" y2="60" stroke="#000" stroke-width="5" stroke-linecap="square"/><line x1="50" y1="60" x2="50" y2="30" stroke="#000" stroke-width="5" stroke-linecap="square"/></svg>`;
-      } else { // ヘルムホルツ錯視（縞模様）
+      } else { 
         return isLong
           ? `<svg width="80" height="80" viewBox="0 0 100 100"><line x1="30" y1="20" x2="70" y2="20" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="30" x2="70" y2="30" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="40" x2="70" y2="40" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="50" x2="70" y2="50" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="60" x2="70" y2="60" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="70" x2="70" y2="70" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="80" x2="70" y2="80" stroke="#000" stroke-width="4" stroke-linecap="round"/></svg>`
           : `<svg width="80" height="80" viewBox="0 0 100 100"><line x1="20" y1="30" x2="80" y2="30" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="36.6" x2="80" y2="36.6" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="43.3" x2="80" y2="43.3" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="50" x2="80" y2="50" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="56.6" x2="80" y2="56.6" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="63.3" x2="80" y2="63.3" stroke="#000" stroke-width="4" stroke-linecap="round"/><line x1="20" y1="70" x2="80" y2="70" stroke="#000" stroke-width="4" stroke-linecap="round"/></svg>`;
@@ -327,6 +326,33 @@
       </div>
     `;
 
+    // 最初の全体練習用（両方の図形が出る）
+    const msg_prac_general = `
+      <div class="inst-container">
+        <p class="inst-title">【図形の長さ判断（練習）】</p>
+        <p>これからモニターに図形が表示されます。図形の縦と横の長さを比べて、以下のようにキーボードで直感的に回答してください。</p>
+        <div class="inst-box" style="padding-top:10px;">
+          <div style="display:flex; justify-content:center; gap: 40px; margin-bottom: 10px;">
+            <div>${getIllusionSVG(1, true)}</div>
+            <div>${getIllusionSVG(2, true)}</div>
+          </div>
+          <p style="text-align:center; font-size:14px; color:#666; margin-bottom: 15px;">※ この2種類の図形がランダムに表示されます。</p>
+          <div class="fig-row">
+            <div class="fig-item" style="width: 45%;">
+              <p>縦が横より<strong style="color:#c00;">長い</strong>と感じたら</p>
+              <p>➡ <span class="key-btn">↑</span></p>
+            </div>
+            <div class="fig-item" style="width: 45%;">
+              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
+              <p>➡ <span class="key-btn">←</span></p>
+            </div>
+          </div>
+        </div>
+        <p style="text-align: center; color: #555;">準備ができましたら、最初の練習を始めます。「次へ」を押してください。</p>
+      </div>
+    `;
+
+    // 個別ブロックの練習前用
     const msg_prac = (illusionType) => `
       <div class="inst-container">
         <p class="inst-title">【図形の長さ判断】</p>
@@ -425,9 +451,12 @@
     const createInst = (html) => ({ type: jsPsychHtmlButtonResponse, stimulus: html, choices: ['次へ'], data: { task: 'instruction' }, canvas_size: [CONFIG.canvasWidth, CONFIG.canvasHeight] });
 
     var start_pre_plactice = { timeline: [get_par_info, createInst(msg_adj)] };
+    
+    // ★ 復活させた最初の全体練習用教示画面
+    var start_plactice = { timeline: [createInst(msg_prac_general)] };
+    
     var start_experiment = { timeline: [createInst(msg_start_exp)] };
 
-    // 各錯視ごとに教示画面の定義を分ける（1: VH錯視, 2: ヘルムホルツ錯視）
     const start_plactice_n_VH = { timeline: [createInst(msg_prac(1))] };
     const start_plactice_n_Helm = { timeline: [createInst(msg_prac(2))] };
     
@@ -524,7 +553,10 @@
           jsPsych.data.addProperties({ PSE_VH: PSE_VerticalHorizontal, PSE_Helmholtz: PSE_Helmholtz });
       }},
       
-      // 各条件ごとに対応する図解付き教示画面とブロックを紐づけてシャッフル
+      // ★ 削除してしまっていた「全体練習」を復活
+      start_plactice,
+      trial_experiment_plactice,
+      
       ...jsPsych.randomization.shuffle([
         { timeline: [start_plactice_n_Helm, trial_plactice_n_Helmholtz, start_experiment, trial_experiment_n_Helmholtz] },
         { timeline: [start_plactice_n_VH, trial_plactice_n_vertical_horizontal, start_experiment, trial_experiment_n_vertical_horizontal] },
