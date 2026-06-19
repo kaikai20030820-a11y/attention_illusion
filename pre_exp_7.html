@@ -535,7 +535,7 @@
     // 【試行ブロック生成】
     // =========================================================================
     const makeTrial = (sketchFunc, taskName) => ({ type: jsPsychP5, sketch: sketchFunc, data: { task: taskName } });
-    const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj, blanck], timeline_variables: vars, repetitions: 1, randomize_order: random });
+    const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj], timeline_variables: vars, repetitions: 1, randomize_order: random });
 
     let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ { illusion: 1, initial_diff: 30 }, { illusion: 1, initial_diff: -30 }, { illusion: 2, initial_diff: 30 }, { illusion: 2, initial_diff: -30 } ]));
     let trial_experiment_plactice = makeBlock(makeTrial(experiment_plactice, 'plactice'), stimulus_plactice);
