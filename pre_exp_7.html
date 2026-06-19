@@ -239,6 +239,7 @@
       }
     }
 
+    // ★ 修正：調整課題で図形ごとに操作するキーを直感的に切り替え
     function experiment_adjustment(p) {
       let trial = jsPsych.getCurrentTrial();
       let illusion = jsPsych.timelineVariable("illusion", true);
@@ -250,8 +251,22 @@
         nw0 = commonSetup(p, trial);
 
         let keyHandler = function(e) {
-          if (['ArrowUp', 'Up'].includes(e.key)) { current_diff += 2; e.preventDefault(); } 
-          else if (['ArrowDown', 'Down'].includes(e.key)) { current_diff -= 2; e.preventDefault(); } 
+          let adjusted = false;
+
+          // 垂直水平錯視（逆T字）の場合は横線を左右キーで調整
+          if (illusion === 1) {
+            if (['ArrowRight', 'Right'].includes(e.key)) { current_diff += 2; adjusted = true; } 
+            else if (['ArrowLeft', 'Left'].includes(e.key)) { current_diff -= 2; adjusted = true; } 
+          } 
+          // ヘルムホルツ錯視（縞模様）の場合は縦を上下キーで調整
+          else {
+            if (['ArrowUp', 'Up'].includes(e.key)) { current_diff += 2; adjusted = true; } 
+            else if (['ArrowDown', 'Down'].includes(e.key)) { current_diff -= 2; adjusted = true; } 
+          }
+
+          if (adjusted) {
+            e.preventDefault();
+          } 
           else if (e.key === ' ' || e.code === 'Space') {
             e.preventDefault();
             trial.data.result = 'adjusted';
@@ -269,7 +284,13 @@
       p.draw = function() {
         commonDrawStyle(p);
         p.push(); p.fill(0); p.noStroke(); p.textSize(18); p.textAlign(p.CENTER, p.CENTER);
-        p.text("↑ / ↓ キーで長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください", 0, - CONFIG.canvasHeight / 2 + 50);
+        
+        // 画面上部の指示文も図形に合わせて切り替え
+        let instText = illusion === 1 
+          ? "← / → キーで横の長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください"
+          : "↑ / ↓ キーで縦の長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください";
+        
+        p.text(instText, 0, - CONFIG.canvasHeight / 2 + 50);
         p.pop();
         getDrawFunc(illusion)(p, current_diff);
       };
@@ -291,9 +312,6 @@
     // =========================================================================
     // 【jsPsych 教示・UI定義】
     // =========================================================================
-    
-    // ★ ここを変更：HTMLのテキスト表示から、p5.jsによる正確な十字描画へ変更
-    // これにより、前のキャンバスの残骸が見える問題や、不要な線が描画されるバグを防止します。
     const fixationSketch = function(p) {
       p.setup = function () {
         p.createCanvas(CONFIG.canvasWidth, CONFIG.canvasHeight);
@@ -301,11 +319,10 @@
       };
       p.draw = function() {
         p.background(255);
-        p.stroke(51); // 濃いグレー
+        p.stroke(51); 
         p.strokeWeight(4);
         let cx = p.width / 2;
         let cy = p.height / 2;
-        // 十字（+）を描画
         p.line(cx - 20, cy, cx + 20, cy);
         p.line(cx, cy - 20, cx, cy + 20);
       };
@@ -332,6 +349,7 @@
       }
     };
 
+    // ★ 修正：調整課題の教示も図形ごとに操作キーが異なることを明記
     const msg_adj = `
       <div class="inst-container">
         <p class="inst-title">【長さの調整】</p>
@@ -339,7 +357,11 @@
         <div class="inst-box">
           <div style="display:flex; align-items:center;">
             <div style="flex:1;">
-              <p>モニターに図形が表示されますので、<strong>「↑」または「↓」キー</strong>を押して、図形の<span style="color: #c00; font-weight: bold;">縦と横がまったく同じ長さに見える</span>ように長さを調整してください。</p>
+              <p>モニターに図形が表示されますので、図形の<span style="color: #c00; font-weight: bold;">縦と横がまったく同じ長さに見える</span>ように長さを調整してください。</p>
+              <ul style="padding-left: 20px;">
+                <li><strong>逆T字の図形：</strong> <strong>「←」「→」キー</strong>で横の長さを調整</li>
+                <li><strong>縞模様の図形：</strong> <strong>「↑」「↓」キー</strong>で縦の長さを調整</li>
+              </ul>
               <p>同じ長さに見えたら、<strong>「SPACE」キー</strong>を押して決定してください。</p>
               <p style="font-size:14px; color:#666;">※ 右の2種類の図形が順番に表示されます。</p>
             </div>
@@ -368,7 +390,7 @@
               <p>➡ <span class="key-btn">↑</span></p>
             </div>
             <div class="fig-item" style="width: 45%;">
-              <p>横が縦より<strong style="color:#0055cc;">長い</strong>と感じたら</p>
+              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
               <p>➡ <span class="key-btn">←</span></p>
             </div>
           </div>
@@ -390,7 +412,7 @@
             </div>
             <div class="fig-item" style="width: 45%;">
               ${getIllusionSVG(illusionType, false)}
-              <p>横が縦より<strong style="color:#0055cc;">長い</strong>と感じたら</p>
+              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
               <p>➡ <span class="key-btn">←</span></p>
             </div>
           </div>
@@ -412,7 +434,7 @@
             </div>
             <div class="fig-item" style="width: 45%;">
               ${getIllusionSVG(illusionType, false)}
-              <p>横が<strong style="color:#0055cc;">長い</strong> ➡ <span class="key-btn">←</span></p>
+              <p>縦が<strong style="color:#0055cc;">短い</strong> ➡ <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -457,7 +479,7 @@
             </div>
             <div class="fig-item" style="width: 45%; border: none; background: transparent; box-shadow: none;">
               ${getIllusionSVG(illusionType, false)}
-              <p>横が<strong style="color:#0055cc;">長い</strong> ➡ <span class="key-btn">←</span></p>
+              <p>縦が<strong style="color:#0055cc;">短い</strong> ➡ <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -535,6 +557,8 @@
     // 【試行ブロック生成】
     // =========================================================================
     const makeTrial = (sketchFunc, taskName) => ({ type: jsPsychP5, sketch: sketchFunc, data: { task: taskName } });
+    
+    // 試行の「前」のみにブランク（注視点）を挿入する設定に変更
     const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj], timeline_variables: vars, repetitions: 1, randomize_order: random });
 
     let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ { illusion: 1, initial_diff: 30 }, { illusion: 1, initial_diff: -30 }, { illusion: 2, initial_diff: 30 }, { illusion: 2, initial_diff: -30 } ]));
