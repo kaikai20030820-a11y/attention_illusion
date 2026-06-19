@@ -561,7 +561,7 @@
     // 試行の「前」のみにブランク（注視点）を挿入する設定に変更
     const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj], timeline_variables: vars, repetitions: 1, randomize_order: random });
 
-    let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ { illusion: 1, initial_diff: 30 }, { illusion: 1, initial_diff: -30 }, { illusion: 2, initial_diff: 30 }, { illusion: 2, initial_diff: -30 } ]));
+    let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ { illusion: 1, initial_diff: 60 }, { illusion: 1, initial_diff: -60 }, { illusion: 2, initial_diff: 30 }, { illusion: 2, initial_diff: -30 } ]));
     let trial_experiment_plactice = makeBlock(makeTrial(experiment_plactice, 'plactice'), stimulus_plactice);
 
     let trial_plactice_n_Helmholtz = makeBlock(makeTrial(createNormalSketch(2), 'plactice_n_Helmholtz'), stimulus_plactice);
