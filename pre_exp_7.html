@@ -292,15 +292,32 @@
     // 【jsPsych 教示・UI定義】
     // =========================================================================
     
-    // ★ ここを変更：真っ白な画面から注視点（+）へ
+    // ★ ここを変更：HTMLのテキスト表示から、p5.jsによる正確な十字描画へ変更
+    // これにより、前のキャンバスの残骸が見える問題や、不要な線が描画されるバグを防止します。
+    const fixationSketch = function(p) {
+      p.setup = function () {
+        p.createCanvas(CONFIG.canvasWidth, CONFIG.canvasHeight);
+        p.noCursor();
+      };
+      p.draw = function() {
+        p.background(255);
+        p.stroke(51); // 濃いグレー
+        p.strokeWeight(4);
+        let cx = p.width / 2;
+        let cy = p.height / 2;
+        // 十字（+）を描画
+        p.line(cx - 20, cy, cx + 20, cy);
+        p.line(cx, cy - 20, cx, cy + 20);
+      };
+    };
+
     const blanck = { 
-      type: jsPsychHtmlKeyboardResponse, 
-      stimulus: '<div style="font-size: 60px; color: #333;">+</div>', 
-      choices: 'NO_KEYS', 
+      type: jsPsychP5, 
+      sketch: fixationSketch, 
       data: { task: 'blank' }, 
       trial_duration: 500 
     };
-    
+
     const get_par_info = { timeline: [{ type: jsPsychSurveyText, questions: [{ prompt: '参加者IDを入力してください', columns: 10, required: true, name: 'participantID' }], button_label: '次へ', on_finish: data => { let run_id = data.response.participantID; jsPsych.data.addProperties({ participantID: run_id }); filename = `${run_id}.csv`; } }] };
 
     const getIllusionSVG = (type, isLong) => {
@@ -335,7 +352,6 @@
       </div>
     `;
 
-    // 最初の全体練習用（両方の図形が出る）
     const msg_prac_general = `
       <div class="inst-container">
         <p class="inst-title">【図形の長さ判断（練習）】</p>
@@ -361,7 +377,6 @@
       </div>
     `;
 
-    // 個別ブロックの練習前用
     const msg_prac = (illusionType) => `
       <div class="inst-container">
         <p class="inst-title">【図形の長さ判断】</p>
