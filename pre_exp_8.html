@@ -579,8 +579,8 @@
     const makeBlock = (trialObj, vars, random = true) => ({ timeline: [blanck, trialObj], timeline_variables: vars, repetitions: 1, randomize_order: random });
 
     let trial_adjustment_block = makeBlock(makeTrial(experiment_adjustment, 'adjustment'), jsPsych.randomization.shuffle([ 
-      { illusion: 1, initial_diff: 50 },
-      { illusion: 1, initial_diff: -50 },
+      { illusion: 1, initial_diff: 60 },
+      { illusion: 1, initial_diff: -60 },
       { illusion: 2, initial_diff: 30 },
       { illusion: 2, initial_diff: -30 }
     ]));
