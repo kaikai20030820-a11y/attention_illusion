@@ -53,8 +53,8 @@
       illusionSize: 150,         
       circleSize: 50,            
       circleDis: 50,             
-      lineNumber: 6,             
-      overtShapeTimeout: 1500    
+      lineNumber: 6              
+      // overtShapeTimeout: 1500 は削除しました
     };
 
     let subject_id = jsPsych.randomization.randomID(10);
@@ -132,16 +132,15 @@
 
     // ★ 練習試行時のみ画面下にヒントを表示する共通関数
     function drawPracticeHint(p, trial, overtShape = null, orientation = null) {
-      // 試行のデータ名(task)に 'plactice' という文字が含まれていなければ何もしない（本番用）
       if (!trial.data.task.includes('plactice')) return;
       
       p.push();
-      p.fill(120); // 濃いグレーで目立ちすぎないように
+      p.fill(120); 
       p.noStroke();
       p.textSize(18);
       p.textAlign(p.CENTER, p.CENTER);
       
-      let y = CONFIG.canvasHeight / 2 - 40; // 画面の下の方
+      let y = CONFIG.canvasHeight / 2 - 40; 
       
       if (overtShape !== null && overtShape >= 1 && overtShape <= 4) {
         if (orientation === 1) {
@@ -208,7 +207,6 @@
         p.draw = function() {
           commonDrawStyle(p);
           getDrawFunc(illusionType)(p, effect_size);
-          // ヒントの描画（練習のみ）
           drawPracticeHint(p, trial);
         };
       }
@@ -232,12 +230,12 @@
           let rt = p.millis() - nw0;
           if (rt <= 100) drawPreCircle(p, pre_circle, shape[1]);
           if (rt > 100 && rt < 400) getDrawFunc(illusionType)(p, shape[0]);
-          // ヒントの描画（練習のみ）
           drawPracticeHint(p, trial);
         };
       }
     }
 
+    // ★ ここを変更：Overt条件のタイムアウト処理を削除しました
     function createOvertSketch(illusionType, overtMode, orientation) {
       return function(p) {
         let trial = jsPsych.getCurrentTrial();
@@ -253,18 +251,12 @@
           commonDrawStyle(p);
           let rt = p.millis() - nw0;
           if (shape >= 1 && shape <= 4) {
+            // 円は300msだけ表示され、キー入力があるまで待ち続けます
             if (rt <= 300) drawOvertCircles(p, orientation, shape);
-            if (rt > CONFIG.overtShapeTimeout) {
-              trial.data.result = 'no_response';
-              trial.data.rt = null;
-              if (trial.cleanupKeyHandler) trial.cleanupKeyHandler();
-              p.noLoop();
-              trial.end_trial();
-            }
           } else {
+            // 錯視図形も300msだけ表示され、キー入力があるまで待ち続けます
             if (rt <= 300 && (shape <= 0 || shape === 30)) getDrawFunc(illusionType)(p, shape);
           }
-          // ヒントの描画（練習のみ・Overt条件の円か錯視かも判定）
           drawPracticeHint(p, trial, shape, orientation);
         };
       }
@@ -333,7 +325,6 @@
       p.draw = function() {
         commonDrawStyle(p); 
         getDrawFunc(illusion)(p, effect_size);
-        // ヒントの描画（最初の全体練習）
         drawPracticeHint(p, trial);
       };
     }
