@@ -149,7 +149,7 @@
           p.text("【練習】左が大きい:「←」キー  /  右が大きい:「→」キー", 0, y);
         }
       } else {
-        p.text("【練習】縦が長い:「↑」キー  /  縦が短い:「←」キー", 0, y);
+        p.text("【練習】縦が長い:「↑」キー  /  横が長い:「←」キー", 0, y);
       }
       p.pop();
     }
@@ -305,8 +305,8 @@
         p.push(); p.fill(0); p.noStroke(); p.textSize(18); p.textAlign(p.CENTER, p.CENTER);
         
         let instText = illusion === 1 
-          ? "← / → キーで横の長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください"
-          : "↑ / ↓ キーで縦の長さを調整し、\n縦と横が同じ長さに見えるところで SPACE キーを押してください";
+          ? "← / → キーで横の長さを調整し、\n縦線と横線の長さが同じに見えるところで SPACE キーを押してください"
+          : "↑ / ↓ キーで縦の長さを調整し、\n図形全体が正方形に見えるところで SPACE キーを押してください";
         
         p.text(instText, 0, - CONFIG.canvasHeight / 2 + 50);
         p.pop();
@@ -372,7 +372,7 @@
     const msg_adj = `
       <div class="inst-container">
         <p class="inst-title">【長さの調整】</p>
-        <p>まず、あなた自身の見え方のクセを測定します。</p>
+        <p>まず、あなた自身の見え方を測定します。</p>
         <div class="inst-box">
           <div style="display:flex; align-items:center;">
             <div style="flex:1;">
@@ -406,11 +406,11 @@
           <div class="fig-row">
             <div class="fig-item" style="width: 45%;">
               <p>縦が横より<strong style="color:#c00;">長い</strong>と感じたら</p>
-              <p>➡ <span class="key-btn">↑</span></p>
+              <p> <span class="key-btn">↑</span></p>
             </div>
             <div class="fig-item" style="width: 45%;">
-              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
-              <p>➡ <span class="key-btn">←</span></p>
+              <p>横が縦より<strong style="color:#c00;">長い</strong>と感じたら</p>
+              <p> <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -427,12 +427,12 @@
             <div class="fig-item" style="width: 45%;">
               ${getIllusionSVG(illusionType, true)}
               <p>縦が横より<strong style="color:#c00;">長い</strong>と感じたら</p>
-              <p>➡ <span class="key-btn">↑</span></p>
+              <p> <span class="key-btn">↑</span></p>
             </div>
             <div class="fig-item" style="width: 45%;">
               ${getIllusionSVG(illusionType, false)}
-              <p>縦が横より<strong style="color:#0055cc;">短い</strong>と感じたら</p>
-              <p>➡ <span class="key-btn">←</span></p>
+              <p>横が縦より<strong style="color:#c00;">長い</strong>と感じたら</p>
+              <p> <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -453,7 +453,7 @@
             </div>
             <div class="fig-item" style="width: 45%;">
               ${getIllusionSVG(illusionType, false)}
-              <p>縦が<strong style="color:#0055cc;">短い</strong> ➡ <span class="key-btn">←</span></p>
+              <p>横が<strong style="color:#c00;">長い</strong> ➡ <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -498,7 +498,7 @@
             </div>
             <div class="fig-item" style="width: 45%; border: none; background: transparent; box-shadow: none;">
               ${getIllusionSVG(illusionType, false)}
-              <p>縦が<strong style="color:#0055cc;">短い</strong> ➡ <span class="key-btn">←</span></p>
+              <p>横が<strong style="color:#c00;">長い</strong> ➡ <span class="key-btn">←</span></p>
             </div>
           </div>
         </div>
@@ -585,7 +585,7 @@
       { illusion: 2, initial_diff: -30 }
     ]));
 
-    let trial_experiment_plactice = makeBlock(makeTrial(experiment_plactice, 'plactice'), stimulus_plactice);
+    //let trial_experiment_plactice = makeBlock(makeTrial(experiment_plactice, 'plactice'), stimulus_plactice);
 
     let trial_plactice_n_Helmholtz = makeBlock(makeTrial(createNormalSketch(2), 'plactice_n_Helmholtz'), stimulus_plactice);
     let trial_plactice_n_vertical_horizontal = makeBlock(makeTrial(createNormalSketch(1), 'plactice_n_vertical_horizontal'), stimulus_plactice);
@@ -621,8 +621,8 @@
           jsPsych.data.addProperties({ PSE_VH: PSE_VerticalHorizontal, PSE_Helmholtz: PSE_Helmholtz });
       }},
       
-      start_plactice,
-      trial_experiment_plactice,
+      //start_plactice,
+      //trial_experiment_plactice,
       
       ...jsPsych.randomization.shuffle([
         { timeline: [start_plactice_n_Helm, trial_plactice_n_Helmholtz, start_experiment, trial_experiment_n_Helmholtz] },
