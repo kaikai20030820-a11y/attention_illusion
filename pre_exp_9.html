@@ -100,14 +100,15 @@
     function drawOvertCircles(p, orientation, shape_type) {
       const size = CONFIG.illusionSize;
       const cDis = CONFIG.circleDis;
+      const sizeN = CONFIG.circleSize;
       const sizeLarge = CONFIG.circleSize * 1.3;
       const sizeSmall = CONFIG.circleSize * 0.7;
 
       let size1, size2;
   if (shape_type === 1 || shape_type === 3) { 
-    size1 = sizeLarge; size2 = circleSize;
+    size1 = sizeLarge; size2 = sizeN;
   } else if (shape_type === 2 || shape_type === 4) {
-    size1 = sizeSmall; size2 = circleSize;
+    size1 = sizeSmall; size2 = sizeN;
   }
       if (orientation === 1) { 
         p.ellipse(0, -size / 2 - cDis, size1, size1); 
